@@ -5,6 +5,8 @@ import okhttp3.RequestBody
 internal sealed interface ApiRequest {
     val url: String
     val headers: Map<String, String>
+    val isApiKeyRequired: Boolean
+        get() = false
 }
 
 internal interface GetRequest : ApiRequest {

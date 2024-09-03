@@ -1,17 +1,14 @@
 package com.waddle.gentoo.internal.api
 
+import android.support.annotation.WorkerThread
 import com.waddle.gentoo.BuildConfig
 import com.waddle.gentoo.internal.exception.GentooException
+import com.waddle.gentoo.internal.util.GentooResponse
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
-import java.io.IOException
 
 internal class ApiClient(
     private val apiKey: String,
@@ -27,40 +24,40 @@ internal class ApiClient(
         )
         .build()
 
-    fun <T> send(request: ApiRequest, serializer: KSerializer<T>, responseHandler: ResponseHandler<T>?) {
-        okHttpClient.newCall(buildRequest(request)).enqueue(
-            object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    responseHandler?.onResponse(
-                        com.waddle.gentoo.internal.util.Response.Failure(
-                            GentooException(e)
-                        )
-                    )
-                }
+    private val json = Json { ignoreUnknownKeys = true }
 
-                override fun onResponse(call: Call, response: Response) {
-                    if (!response.isSuccessful) {
-                        // TODO add some ErrorResponse and call response handler as failure
-                        return
-                    }
-
-                    val body = response.body?.string()
-                    if (body == null) {
-                        val e = GentooException("Body should not be empty. request = ${request::class}")
-                        responseHandler?.onResponse(com.waddle.gentoo.internal.util.Response.Failure(e))
-                        return
-                    }
-                    val result = Json.decodeFromString(serializer, body)
-                    responseHandler?.onResponse(com.waddle.gentoo.internal.util.Response.Success(result))
-                }
+    @WorkerThread
+    fun <T> send(request: ApiRequest, serializer: KSerializer<T>): GentooResponse<T> {
+        try {
+            val response = okHttpClient.newCall(buildRequest(request)).execute()
+            if (!response.isSuccessful) {
+                // TODO add some ErrorResponse and call response handler as failure
+                return GentooResponse.Failure(GentooException("Response was unsuccessful"))
             }
-        )
+
+            val body = response.body?.string()
+            if (body == null) {
+                val e = GentooException("Body should not be empty. request = ${request::class}")
+                return GentooResponse.Failure(e)
+            }
+            try {
+                val result = json.decodeFromString(serializer, body)
+                return GentooResponse.Success(result)
+            } catch (e: Exception) {
+                return GentooResponse.Failure(GentooException(e))
+            }
+        } catch (e: Exception) {
+            return GentooResponse.Failure(GentooException(e))
+        }
     }
 
 
     private fun buildRequest(apiRequest: ApiRequest): Request {
         val request = Request.Builder()
-            .addHeader("x-api-key", apiKey)
+
+        if (apiRequest.isApiKeyRequired) {
+            request.addHeader("x-api-key", apiKey)
+        }
 
         apiRequest.headers.forEach {
             request.addHeader(it.key, it.value)
@@ -74,19 +71,19 @@ internal class ApiClient(
             }
 
             is PostRequest -> {
-                request.url(baseUrl)
+                request.url(baseUrl + apiRequest.url)
                     .post(apiRequest.requestBody)
                     .build()
             }
 
             is PutRequest -> {
-                request.url(baseUrl)
+                request.url(baseUrl + apiRequest.url)
                     .put(apiRequest.requestBody)
                     .build()
             }
 
             is DeleteRequest -> {
-                request.url(apiRequest.getQueryUrl())
+                request.url(baseUrl + apiRequest.getQueryUrl())
                     .delete(apiRequest.requestBody)
                     .build()
             }

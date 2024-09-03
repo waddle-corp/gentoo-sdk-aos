@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -42,6 +43,7 @@ dependencies {
     implementation(libs.appcompat.v7)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    implementation(libs.kotlin.serialization)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)

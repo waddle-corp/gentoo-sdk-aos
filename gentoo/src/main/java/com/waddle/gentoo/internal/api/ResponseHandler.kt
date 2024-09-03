@@ -1,7 +1,7 @@
 package com.waddle.gentoo.internal.api
 
-import com.waddle.gentoo.internal.util.Response
+import com.waddle.gentoo.internal.util.GentooResponse
 
-internal interface ResponseHandler<T> {
-    fun onResponse(response: Response<T>)
+internal fun interface ResponseHandler<T> {
+    fun onResponse(response: GentooResponse<T>)
 }

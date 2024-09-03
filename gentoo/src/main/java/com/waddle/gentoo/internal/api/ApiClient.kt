@@ -2,6 +2,9 @@ package com.waddle.gentoo.internal.api
 
 import com.waddle.gentoo.BuildConfig
 import com.waddle.gentoo.internal.exception.GentooException
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -24,7 +27,7 @@ internal class ApiClient(
         )
         .build()
 
-    fun <T> send(request: ApiRequest, responseHandler: ResponseHandler<T>?) {
+    fun <T> send(request: ApiRequest, serializer: KSerializer<T>, responseHandler: ResponseHandler<T>?) {
         okHttpClient.newCall(buildRequest(request)).enqueue(
             object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
@@ -41,8 +44,14 @@ internal class ApiClient(
                         return
                     }
 
-                    val body = response.body
-                    // TODO kotlin serialization
+                    val body = response.body?.string()
+                    if (body == null) {
+                        val e = GentooException("Body should not be empty. request = ${request::class}")
+                        responseHandler?.onResponse(com.waddle.gentoo.internal.util.Response.Failure(e))
+                        return
+                    }
+                    val result = Json.decodeFromString(serializer, body)
+                    responseHandler?.onResponse(com.waddle.gentoo.internal.util.Response.Success(result))
                 }
             }
         )

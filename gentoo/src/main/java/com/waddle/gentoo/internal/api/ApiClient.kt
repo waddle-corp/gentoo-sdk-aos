@@ -2,10 +2,12 @@ package com.waddle.gentoo.internal.api
 
 import android.support.annotation.WorkerThread
 import com.waddle.gentoo.BuildConfig
+import com.waddle.gentoo.internal.api.response.ErrorResponse
 import com.waddle.gentoo.internal.exception.GentooException
-import com.waddle.gentoo.internal.util.GentooResponse
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
@@ -30,24 +32,27 @@ internal class ApiClient(
     fun <T> send(request: ApiRequest, serializer: KSerializer<T>): GentooResponse<T> {
         try {
             val response = okHttpClient.newCall(buildRequest(request)).execute()
-            if (!response.isSuccessful) {
-                // TODO add some ErrorResponse and call response handler as failure
-                return GentooResponse.Failure(GentooException("Response was unsuccessful"))
-            }
-
+            val statusCode = response.code
             val body = response.body?.string()
-            if (body == null) {
-                val e = GentooException("Body should not be empty. request = ${request::class}")
-                return GentooResponse.Failure(e)
-            }
+                ?: return GentooResponse.Failure(ErrorResponse(statusCode, "Body should not be empty. request = ${request::class}"))
+
             try {
+                if (!response.isSuccessful) {
+                    val errorJsonObject = json.parseToJsonElement(body).apply {
+                        this.jsonObject.plus("statusCode" to statusCode)
+                    }
+                    val errorResponse = json.decodeFromJsonElement<ErrorResponse>(errorJsonObject)
+                    return GentooResponse.Failure(errorResponse)
+                }
+
                 val result = json.decodeFromString(serializer, body)
                 return GentooResponse.Success(result)
             } catch (e: Exception) {
-                return GentooResponse.Failure(GentooException(e))
+                val errorResponse = ErrorResponse(statusCode, e.message ?: "")
+                return GentooResponse.Failure(errorResponse, GentooException(e))
             }
         } catch (e: Exception) {
-            return GentooResponse.Failure(GentooException(e))
+            return GentooResponse.Failure(ErrorResponse(-1, e.message ?: ""), GentooException(e))
         }
     }
 

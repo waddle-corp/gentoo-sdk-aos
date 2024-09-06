@@ -48,5 +48,8 @@ dependencies {
     implementation(libs.kotlin.coroutine.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlin.coroutine.test)
+    testImplementation(libs.kotest.assertion)
+    testImplementation(libs.mockk)
     androidTestImplementation(libs.runner)
 }

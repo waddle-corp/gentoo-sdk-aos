@@ -18,7 +18,7 @@ data class Product(
     val type: String,
     val serviceType: String,
     val imageUrl: String,
-    val itemId: String,
+    val itemId: Int,
     val name: String,
     val productUrl: String,
     val originPrice: Int,
@@ -26,7 +26,7 @@ data class Product(
     val discount: Int,
     val rate: Double,
     val reviewNum: Int,
-    val shortDesc: String,
+    val shortDesc: String? = null,
     val tags: List<Tag>
 )
 

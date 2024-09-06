@@ -4,13 +4,20 @@ import android.support.annotation.WorkerThread
 import com.waddle.gentoo.BuildConfig
 import com.waddle.gentoo.internal.api.response.ErrorResponse
 import com.waddle.gentoo.internal.exception.GentooException
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import java.io.IOException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 internal class ApiClient(
     private val apiKey: String,
@@ -29,9 +36,10 @@ internal class ApiClient(
     private val json = Json { ignoreUnknownKeys = true }
 
     @WorkerThread
-    fun <T> send(request: ApiRequest, serializer: KSerializer<T>): GentooResponse<T> {
+    @Throws(GentooException::class)
+    suspend fun <T> send(request: ApiRequest, serializer: KSerializer<T>): GentooResponse<T> {
         try {
-            val response = okHttpClient.newCall(buildRequest(request)).execute()
+            val response = okHttpClient.newCall(buildRequest(request)).await()
             val statusCode = response.code
             val body = response.body?.string()
                 ?: return GentooResponse.Failure(ErrorResponse(statusCode, "Body should not be empty. request = ${request::class}"))
@@ -48,14 +56,12 @@ internal class ApiClient(
                 val result = json.decodeFromString(serializer, body)
                 return GentooResponse.Success(result)
             } catch (e: Exception) {
-                val errorResponse = ErrorResponse(statusCode, e.message ?: "")
-                return GentooResponse.Failure(errorResponse, GentooException(e))
+                throw GentooException(e)
             }
         } catch (e: Exception) {
-            return GentooResponse.Failure(ErrorResponse(-1, e.message ?: ""), GentooException(e))
+            throw GentooException(e)
         }
     }
-
 
     private fun buildRequest(apiRequest: ApiRequest): Request {
         val request = Request.Builder()
@@ -93,5 +99,19 @@ internal class ApiClient(
                     .build()
             }
         }
+    }
+
+    private suspend fun Call.await() = suspendCancellableCoroutine { continuation ->
+        this.enqueue(
+            object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    continuation.resumeWithException(e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    continuation.resume(response)
+                }
+            }
+        )
     }
 }

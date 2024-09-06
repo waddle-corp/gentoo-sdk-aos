@@ -6,6 +6,7 @@ runner = "1.0.2"
 appcompatV7 = "28.0.0"
 okhttp = "4.12.0"
 kotlin-serialization = "1.6.3"
+kotlin-coroutine = "1.8.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -14,6 +15,8 @@ appcompat-v7 = { group = "com.android.support", name = "appcompat-v7", version.r
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization" }
+kotlin-coroutine-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlin-coroutine" }
+kotlin-coroutine-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlin-coroutine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

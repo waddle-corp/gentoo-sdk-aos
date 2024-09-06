@@ -44,6 +44,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.kotlin.serialization)
+    implementation(libs.kotlin.coroutine.core)
+    implementation(libs.kotlin.coroutine.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.runner)

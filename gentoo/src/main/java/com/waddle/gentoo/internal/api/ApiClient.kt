@@ -39,7 +39,7 @@ internal class ApiClient(
     @Throws(GentooException::class)
     suspend fun <T> send(request: ApiRequest, serializer: KSerializer<T>): GentooResponse<T> {
         try {
-            val response = okHttpClient.newCall(buildRequest(request)).await()
+            val response = okHttpClient.newCall(request.toRequest()).await()
             val statusCode = response.code
             val body = response.body?.string()
                 ?: return GentooResponse.Failure(ErrorResponse(statusCode, "Body should not be empty. request = ${request::class}"))
@@ -63,45 +63,45 @@ internal class ApiClient(
         }
     }
 
-    private fun buildRequest(apiRequest: ApiRequest): Request {
+    private fun ApiRequest.toRequest(): Request {
         val request = Request.Builder()
 
-        if (apiRequest.isApiKeyRequired) {
+        if (this.isApiKeyRequired) {
             request.addHeader("x-api-key", apiKey)
         }
 
-        apiRequest.headers.forEach {
+        this.headers.forEach {
             request.addHeader(it.key, it.value)
         }
 
-        return when (apiRequest) {
+        return when (this) {
             is GetRequest -> {
-                request.url(baseUrl + apiRequest.getQueryUrl())
+                request.url(baseUrl + this.getQueryUrl())
                     .get()
                     .build()
             }
 
             is PostRequest -> {
-                request.url(baseUrl + apiRequest.url)
-                    .post(apiRequest.requestBody)
+                request.url(baseUrl + this.url)
+                    .post(this.requestBody)
                     .build()
             }
 
             is PutRequest -> {
-                request.url(baseUrl + apiRequest.url)
-                    .put(apiRequest.requestBody)
+                request.url(baseUrl + this.url)
+                    .put(this.requestBody)
                     .build()
             }
 
             is DeleteRequest -> {
-                request.url(baseUrl + apiRequest.getQueryUrl())
-                    .delete(apiRequest.requestBody)
+                request.url(baseUrl + this.getQueryUrl())
+                    .delete(this.requestBody)
                     .build()
             }
         }
     }
 
-    private suspend fun Call.await() = suspendCancellableCoroutine { continuation ->
+    internal suspend fun Call.await() = suspendCancellableCoroutine { continuation ->
         this.enqueue(
             object : Callback {
                 override fun onFailure(call: Call, e: IOException) {

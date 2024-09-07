@@ -26,6 +26,16 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            buildConfigField("String", "API_KEY", "\"${System.getenv("GENTOO_RELEASE_API_KEY")}\"")
+            buildConfigField("String", "DAILY_SHOT_BASE_URL", "\"${System.getenv("GENTOO_RELEASE_DAILY_SHOT_BASE_URL")}\"")
+        }
+
+        debug {
+            isMinifyEnabled = false
+
+            buildConfigField("String", "API_KEY", "\"${System.getenv("GENTOO_DEBUG_API_KEY")}\"")
+            buildConfigField("String", "DAILY_SHOT_BASE_URL", "\"${System.getenv("GENTOO_DEBUG_DAILY_SHOT_BASE_URL")}\"")
         }
     }
 

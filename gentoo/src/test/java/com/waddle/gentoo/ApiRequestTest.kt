@@ -7,7 +7,7 @@ import com.waddle.gentoo.internal.api.response.AuthResponse
 import com.waddle.gentoo.internal.api.response.FloatingCommentResponse
 import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.FloatingProductRequest
-import com.waddle.gentoo.internal.api.response.PostRecommendResponse
+import com.waddle.gentoo.internal.api.response.FloatingProductResponse
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.runBlocking
@@ -18,6 +18,11 @@ internal class ApiRequestsTest {
         "G4J2wPnd643wRoQiK52PO9ZAtaD6YNCAhGlfm1Oc",
         "https://hg5eey52l4.execute-api.ap-northeast-2.amazonaws.com/dev"
     )
+
+    @Test
+    fun asdf() = runBlocking {
+        println(Gentoo.getChatUrl("test", "test", "dlst", "3190"))
+    }
 
     @Test
     fun test_auth() = runBlocking {
@@ -50,12 +55,12 @@ internal class ApiRequestsTest {
         }
 
         val thisRequest = FloatingProductRequest(testItemId, userId, "this")
-        var response = apiClient.send(thisRequest, PostRecommendResponse.serializer())
-        response.shouldBeTypeOf<GentooResponse.Success<PostRecommendResponse>>()
+        var response = apiClient.send(thisRequest, FloatingProductResponse.serializer())
+        response.shouldBeTypeOf<GentooResponse.Success<FloatingProductResponse>>()
 
         val needsRequest = FloatingProductRequest(testItemId, userId, "needs")
-        response = apiClient.send(needsRequest, PostRecommendResponse.serializer())
-        response.shouldBeTypeOf<GentooResponse.Success<PostRecommendResponse>>()
+        response = apiClient.send(needsRequest, FloatingProductResponse.serializer())
+        response.shouldBeTypeOf<GentooResponse.Success<FloatingProductResponse>>()
         Unit
     }
 

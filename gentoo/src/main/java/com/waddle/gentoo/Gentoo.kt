@@ -31,7 +31,12 @@ object Gentoo {
         val userId = authResponse.body.randomId
         val floatingProductResponse = getFloatingProduct(itemId, userId, "this")
         val floatingProductAsJson = Json.encodeToString(floatingProductResponse)
-        return "${BuildConfig.DAILY_SHOT_BASE_URL}/${clientId.urlEncoded}/sdk/${userId.urlEncoded}?product=${floatingProductAsJson.urlEncoded}" // ${this.hostSrc}/${this.clientId}/sdk/${this.userId}?product=${JSON.stringify(this.floatingProduct)}
+        val hostUrl = if (clientId == "dlst") {
+            "https://demo.gentooai.com"
+        } else {
+            "https://dev-demo.gentooai.com"
+        }
+        return "$hostUrl/${clientId.urlEncoded}/sdk/${userId.urlEncoded}?product=${floatingProductAsJson.urlEncoded}" // ${this.hostSrc}/${this.clientId}/sdk/${this.userId}?product=${JSON.stringify(this.floatingProduct)}
     }
 
     @Throws(GentooException::class)

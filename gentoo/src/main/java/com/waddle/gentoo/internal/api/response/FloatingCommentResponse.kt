@@ -4,9 +4,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetRecommendResponse(
+data class FloatingCommentResponse(
     @SerialName("this")
-    val thisDescription: String,
-    val needs: String,
+    val commentForThis: String,
+    @SerialName("needs")
+    val commentForNeeds: String,
     val case: String
 )

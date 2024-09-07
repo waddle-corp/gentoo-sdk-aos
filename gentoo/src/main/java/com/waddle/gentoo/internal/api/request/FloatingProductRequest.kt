@@ -8,8 +8,7 @@ import kotlinx.serialization.json.put
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-// TODO : rename it to more semantic name
-internal class PostRecommendRequest(
+internal class FloatingProductRequest(
     private val itemId: String,
     private val userId: String,
     private val target: String,

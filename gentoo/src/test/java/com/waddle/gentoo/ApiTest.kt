@@ -1,18 +1,6 @@
 package com.waddle.gentoo
 
-import com.waddle.gentoo.ApiRequestsTest.Companion.testAuthCode
-import com.waddle.gentoo.ApiRequestsTest.Companion.testItemId
-import com.waddle.gentoo.ApiRequestsTest.Companion.testUdid
 import com.waddle.gentoo.internal.api.ApiClient
-import com.waddle.gentoo.internal.api.GentooResponse
-import com.waddle.gentoo.internal.api.request.AuthRequest
-import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
-import com.waddle.gentoo.internal.api.request.FloatingProductRequest
-import com.waddle.gentoo.internal.api.response.AuthResponse
-import com.waddle.gentoo.internal.api.response.FloatingCommentResponse
-import com.waddle.gentoo.internal.api.response.PostRecommendResponse
-import io.kotest.assertions.fail
-import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

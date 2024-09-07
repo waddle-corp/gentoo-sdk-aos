@@ -2,11 +2,11 @@ package com.waddle.gentoo
 
 import com.waddle.gentoo.internal.api.ApiClient
 import com.waddle.gentoo.internal.api.request.AuthRequest
-import com.waddle.gentoo.internal.api.request.GetRecommendRequest
+import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
 import com.waddle.gentoo.internal.api.response.AuthResponse
-import com.waddle.gentoo.internal.api.response.GetRecommendResponse
+import com.waddle.gentoo.internal.api.response.FloatingCommentResponse
 import com.waddle.gentoo.internal.api.GentooResponse
-import com.waddle.gentoo.internal.api.request.PostRecommendRequest
+import com.waddle.gentoo.internal.api.request.FloatingProductRequest
 import com.waddle.gentoo.internal.api.response.PostRecommendResponse
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -20,7 +20,7 @@ internal class ApiRequestsTest {
     )
 
     @Test
-    fun auth() = runBlocking {
+    fun test_auth() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val response = apiClient.send(authRequest, AuthResponse.serializer())
         response.shouldBeTypeOf<GentooResponse.Success<AuthResponse>>()
@@ -28,32 +28,32 @@ internal class ApiRequestsTest {
     }
 
     @Test
-    fun getRecommend() = runBlocking {
+    fun test_floatingCommentRequest() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val userId = when (val response = apiClient.send(authRequest, AuthResponse.serializer())) {
             is GentooResponse.Success -> response.value.body.randomId
             is GentooResponse.Failure -> fail("AuthRequest should not fail")
         }
 
-        val getRecommendRequest = GetRecommendRequest(testItemId, userId)
-        val response = apiClient.send(getRecommendRequest, GetRecommendResponse.serializer())
-        response.shouldBeTypeOf<GentooResponse.Success<GetRecommendResponse>>()
+        val floatingCommentRequest = FloatingCommentRequest(testItemId, userId)
+        val response = apiClient.send(floatingCommentRequest, FloatingCommentResponse.serializer())
+        response.shouldBeTypeOf<GentooResponse.Success<FloatingCommentResponse>>()
         Unit
     }
 
     @Test
-    fun postRecommend() = runBlocking {
+    fun test_floatingProductRequest() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val userId = when (val response = apiClient.send(authRequest, AuthResponse.serializer())) {
             is GentooResponse.Success -> response.value.body.randomId
             is GentooResponse.Failure -> fail("AuthRequest should not fail")
         }
 
-        val thisRequest = PostRecommendRequest(testItemId, userId, "this")
+        val thisRequest = FloatingProductRequest(testItemId, userId, "this")
         var response = apiClient.send(thisRequest, PostRecommendResponse.serializer())
         response.shouldBeTypeOf<GentooResponse.Success<PostRecommendResponse>>()
 
-        val needsRequest = PostRecommendRequest(testItemId, userId, "needs")
+        val needsRequest = FloatingProductRequest(testItemId, userId, "needs")
         response = apiClient.send(needsRequest, PostRecommendResponse.serializer())
         response.shouldBeTypeOf<GentooResponse.Success<PostRecommendResponse>>()
         Unit

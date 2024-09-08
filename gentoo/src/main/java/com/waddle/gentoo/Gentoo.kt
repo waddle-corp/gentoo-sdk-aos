@@ -21,6 +21,7 @@ object Gentoo {
     )
 
     @Throws(GentooException::class)
+    // TODO(nathan) : check if it is okay to provide suspend function only
     suspend fun getChatUrl(
         userDeviceId: String,
         authCode: String,

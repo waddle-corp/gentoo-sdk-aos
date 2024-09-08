@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.kotlin.serialization)
     implementation(libs.kotlin.coroutine.core)
     implementation(libs.kotlin.coroutine.android)
+    implementation(libs.material)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.coroutine.test)

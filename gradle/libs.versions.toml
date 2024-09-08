@@ -9,6 +9,13 @@ kotlin-serialization = "1.6.3"
 kotlin-coroutine = "1.8.1"
 kotest-assertion = "5.7.2"
 mockk = "1.13.11"
+coreKtx = "1.13.1"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
+activity = "1.8.0"
+constraintlayout = "2.1.4"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -22,6 +29,13 @@ kotlin-coroutine-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-co
 kotlin-coroutine-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlin-coroutine" }
 kotest-assertion = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest-assertion" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 
 [plugins]

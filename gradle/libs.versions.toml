@@ -10,6 +10,8 @@ kotlin-coroutine = "1.8.1"
 kotest-assertion = "5.7.2"
 mockk = "1.13.11"
 material = "1.12.0"
+appcompat = "1.7.0"
+activity = "1.8.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -24,6 +26,9 @@ kotlin-coroutine-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-corou
 kotest-assertion = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest-assertion" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

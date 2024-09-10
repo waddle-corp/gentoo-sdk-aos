@@ -17,6 +17,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        viewBinding = true
     }
 
     buildTypes {
@@ -50,13 +51,13 @@ android {
 }
 
 dependencies {
-    implementation(libs.appcompat.v7)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.kotlin.serialization)
     implementation(libs.kotlin.coroutine.core)
     implementation(libs.kotlin.coroutine.android)
-    implementation(libs.material)
+    api(libs.material)
+    implementation(libs.annotation)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.coroutine.test)

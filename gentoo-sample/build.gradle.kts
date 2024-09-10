@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.waddle.gentoo.sample"
-        minSdk = 34
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -39,6 +39,7 @@ dependencies {
 
     implementation(libs.appcompat)
     implementation(libs.activity)
+    implementation(libs.constraintlayout)
     implementation(project(":gentoo"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)

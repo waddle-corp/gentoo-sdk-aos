@@ -33,12 +33,16 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
 
     implementation(libs.appcompat)
     implementation(libs.activity)
+    implementation(libs.activity.ktx)
     implementation(libs.constraintlayout)
     implementation(project(":gentoo"))
     testImplementation(libs.junit)

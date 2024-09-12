@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FloatingCommentResponse(
+data class FloatingComment(
     @SerialName("this")
     val commentForThis: String,
     @SerialName("needs")

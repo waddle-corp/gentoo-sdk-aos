@@ -8,7 +8,7 @@ import android.widget.FrameLayout
 import androidx.core.view.updateLayoutParams
 import com.waddle.gentoo.R
 import com.waddle.gentoo.databinding.ViewGentooFloatingActionButtonBinding
-import com.waddle.gentoo.internal.api.response.FloatingCommentResponse
+import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.util.toDp
 
 class GentooFloatingActionButton @JvmOverloads constructor(
@@ -19,6 +19,8 @@ class GentooFloatingActionButton @JvmOverloads constructor(
     private val binding: ViewGentooFloatingActionButtonBinding = ViewGentooFloatingActionButtonBinding.inflate(
         LayoutInflater.from(context)
     )
+
+    var chatUrl: String? = null
 
     var isExpanded: Boolean = false
         private set
@@ -31,9 +33,21 @@ class GentooFloatingActionButton @JvmOverloads constructor(
             { expand() },
             AUTO_EXPAND_DELAY
         )
+
+        this.binding.root.setOnClickListener {
+            chatUrl?.let {
+                // TODO : go to chat webview here
+            }
+        }
     }
 
-    fun setFloatingComment(floatingCommentResponse: FloatingCommentResponse) {
+    fun setFloatingComment(floatingComment: FloatingComment?) {
+        if (floatingComment == null) {
+            binding.root.visibility = GONE
+        } else {
+            binding.root.visibility = VISIBLE
+            binding.gentooDescription.text = floatingComment.commentForThis
+        }
     }
 
     fun expand() {

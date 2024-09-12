@@ -20,11 +20,6 @@ internal class ApiRequestsTest {
     )
 
     @Test
-    fun asdf() = runBlocking {
-        println(Gentoo.getChatUrl("test", "test", "dlst", "3190"))
-    }
-
-    @Test
     fun test_auth() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val response = apiClient.send(authRequest, AuthResponse.serializer())

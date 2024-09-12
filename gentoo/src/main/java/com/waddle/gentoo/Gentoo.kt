@@ -20,6 +20,10 @@ object Gentoo {
         BuildConfig.DAILY_SHOT_BASE_URL
     )
 
+    private var authInfo: Triple<String, String, AuthResponse>? = null
+    val authResponse: AuthResponse?
+        get() = authInfo?.third
+
     @Throws(GentooException::class)
     // TODO(nathan) : check if it is okay to provide suspend function only
     suspend fun getChatUrl(
@@ -59,11 +63,19 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    private suspend fun authenticate(userDeviceId: String, authCode: String): AuthResponse {
+    suspend fun authenticate(userDeviceId: String, authCode: String): AuthResponse {
+        // if there is same auth info with given userDeviceId and authCode, early return cached AuthResponse
+        this.authInfo?.let {
+            if (it.first == userDeviceId && it.second == authCode) return it.third
+        }
+
         val authRequest = AuthRequest(userDeviceId, authCode)
         return when (val authResponse = apiClient.send(authRequest, AuthResponse.serializer())) {
             is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.error) // TODO : double check how to handle this case
-            is GentooResponse.Success -> authResponse.value
+            is GentooResponse.Success -> {
+                this.authInfo = Triple(userDeviceId, authCode, authResponse.value)
+                authResponse.value
+            }
         }
     }
 }

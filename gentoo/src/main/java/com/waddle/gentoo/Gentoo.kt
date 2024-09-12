@@ -30,7 +30,7 @@ object Gentoo {
     ): String {
         val authResponse = authenticate(userDeviceId, authCode)
         val userId = authResponse.body.randomId
-        val floatingProductResponse = getFloatingProduct(itemId, userId, "this")
+        val floatingProductResponse = fetchFloatingProduct(itemId, userId, "this")
         val floatingProductAsJson = Json.encodeToString(floatingProductResponse)
         val hostUrl = if (clientId == "dlst") {
             "https://demo.gentooai.com"
@@ -41,15 +41,7 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    private suspend fun authenticate(userDeviceId: String, authCode: String): AuthResponse {
-        val authRequest = AuthRequest(userDeviceId, authCode)
-        return when (val authResponse = apiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.error) // TODO : double check how to handle this case
-            is GentooResponse.Success -> authResponse.value
-        }
-    }
-
-    private suspend fun getFloatingComment(itemId: String, userId: String): FloatingCommentResponse {
+    suspend fun fetchFloatingComment(itemId: String, userId: String): FloatingCommentResponse {
         val floatingCommentRequest = FloatingCommentRequest(itemId, userId)
         return when (val floatingCommentResponse = apiClient.send(floatingCommentRequest, FloatingCommentResponse.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingCommentResponse.errorResponse.error) // TODO : double check how to handle this case
@@ -57,11 +49,21 @@ object Gentoo {
         }
     }
 
-    private suspend fun getFloatingProduct(itemId: String, userId: String, target: String): FloatingProductResponse {
+    @Throws(GentooException::class)
+    suspend fun fetchFloatingProduct(itemId: String, userId: String, target: String): FloatingProductResponse {
         val floatingProductRequest = FloatingProductRequest(itemId, userId, target)
         return when (val floatingProductResponse = apiClient.send(floatingProductRequest, FloatingProductResponse.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingProductResponse.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingProductResponse.value
+        }
+    }
+
+    @Throws(GentooException::class)
+    private suspend fun authenticate(userDeviceId: String, authCode: String): AuthResponse {
+        val authRequest = AuthRequest(userDeviceId, authCode)
+        return when (val authResponse = apiClient.send(authRequest, AuthResponse.serializer())) {
+            is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.error) // TODO : double check how to handle this case
+            is GentooResponse.Success -> authResponse.value
         }
     }
 }

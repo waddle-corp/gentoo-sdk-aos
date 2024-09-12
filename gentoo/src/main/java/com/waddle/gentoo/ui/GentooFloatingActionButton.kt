@@ -25,11 +25,12 @@ class GentooFloatingActionButton @JvmOverloads constructor(
 
     init {
         binding.gentooImageButton.setImageResource(R.drawable.icon_gentoo)
-        binding.gentooDescription.text = "술 전문가 젠투에게 술 추천 받아보세요! 술 전문가 젠투에게 술 추천 받아보세요!"
         this.addView(binding.root)
-        binding.root.setOnClickListener {
-            if (isExpanded) shrink() else expand()
-        }
+
+        this.postDelayed(
+            { expand() },
+            AUTO_EXPAND_DELAY
+        )
     }
 
     fun setFloatingComment(floatingCommentResponse: FloatingCommentResponse) {
@@ -61,5 +62,9 @@ class GentooFloatingActionButton @JvmOverloads constructor(
             height = 54.toDp(context)
         }
         binding.gentooContainer.setPadding(0, 0, 0, 0)
+    }
+
+    companion object {
+        const val AUTO_EXPAND_DELAY = 3000L
     }
 }

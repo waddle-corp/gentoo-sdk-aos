@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FloatingProductResponse(
+data class FloatingProduct(
     val text: String,
     val example: List<String>,
     val intent: String,

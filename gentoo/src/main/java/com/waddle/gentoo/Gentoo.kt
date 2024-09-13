@@ -29,10 +29,11 @@ object Gentoo {
     private var authInfo: AuthInfo? = null
 
     /**
-     * If it is not null
+     * If it is not null, it means SDK has not been initialized yet.
      */
     private var authJob: Deferred<AuthResponse>? = null
 
+    @Synchronized
     fun initialize(params: InitializeParams) {
         // If SDK already has been initialized with same initializeParams, do nothing.
         if (params == this.initializeParams) return
@@ -45,6 +46,7 @@ object Gentoo {
         this.initializeParams = params
         authJob = CoroutineScope(Dispatchers.IO).async {
             authenticate(params.udid, params.authCode)
+            // TODO catch authenticate's exception here.
         }
     }
 

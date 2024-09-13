@@ -6,10 +6,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.updateLayoutParams
+import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.R
 import com.waddle.gentoo.databinding.ViewGentooFloatingActionButtonBinding
-import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.util.toDp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GentooFloatingActionButton @JvmOverloads constructor(
     context: Context,
@@ -29,25 +33,32 @@ class GentooFloatingActionButton @JvmOverloads constructor(
         binding.gentooImageButton.setImageResource(R.drawable.icon_gentoo)
         this.addView(binding.root)
 
-        this.postDelayed(
-            { expand() },
-            AUTO_EXPAND_DELAY
-        )
 
         this.binding.root.setOnClickListener {
             chatUrl?.let {
                 // TODO : go to chat webview here
             }
         }
-    }
 
-    fun setFloatingComment(floatingComment: FloatingComment?) {
-        if (floatingComment == null) {
-            binding.root.visibility = GONE
-        } else {
-            binding.root.visibility = VISIBLE
-            binding.gentooDescription.text = floatingComment.commentForThis
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val floatingComment = Gentoo.fetchFloatingComment("3190")
+                withContext(Dispatchers.Main) {
+                    binding.root.visibility = VISIBLE
+                    binding.gentooDescription.text = floatingComment.commentForThis
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding.root.visibility = GONE
+                }
+            }
         }
+
+        this.postDelayed(
+            { expand() },
+            AUTO_EXPAND_DELAY
+        )
     }
 
     fun expand() {

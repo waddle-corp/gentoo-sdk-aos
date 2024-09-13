@@ -13,3 +13,9 @@ data class AuthResponse(
 data class AuthResponseBody(
     val randomId: String
 )
+
+data class AuthInfo(
+    val udid: String,
+    val authCode: String,
+    val authResponse: AuthResponse
+)

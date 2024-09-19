@@ -53,21 +53,19 @@ object Gentoo {
     @Throws(GentooException::class)
     // TODO(nathan) : check if it is okay to provide suspend function only
     suspend fun getChatUrl(
-        userDeviceId: String,
-        authCode: String,
-        clientId: String,
         itemId: String
     ): String {
-        val authResponse = authenticate(userDeviceId, authCode)
+        val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
+        val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
         val userId = authResponse.body.randomId
         val floatingProduct = fetchFloatingProduct(itemId, "this")
         val floatingProductAsJson = Json.encodeToString(floatingProduct)
-        val hostUrl = if (clientId == "dlst") {
+        val hostUrl = if (initializeParams.clientId == "dlst") {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${clientId.urlEncoded}/sdk/${userId.urlEncoded}?product=${floatingProductAsJson.urlEncoded}" // ${this.hostSrc}/${this.clientId}/sdk/${this.userId}?product=${JSON.stringify(this.floatingProduct)}
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?product=${floatingProductAsJson.urlEncoded}" // ${this.hostSrc}/${this.clientId}/sdk/${this.userId}?product=${JSON.stringify(this.floatingProduct)}
     }
 
     @Throws(GentooException::class)

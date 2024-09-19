@@ -1,6 +1,7 @@
 package com.waddle.gentoo.ui
 
 import android.content.Context
+import android.content.Intent
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import com.waddle.gentoo.databinding.ViewGentooFloatingActionButtonBinding
 import com.waddle.gentoo.internal.util.toDp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,22 +38,30 @@ class GentooFloatingActionButton @JvmOverloads constructor(
 
         this.binding.root.setOnClickListener {
             chatUrl?.let {
-                // TODO : go to chat webview here
+                val intent = Intent(context, GentooChatActivity::class.java)
+                intent.putExtra(GentooChatActivity.INTENT_CHAT_URL, it)
+                context.startActivity(intent)
             }
         }
 
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val floatingComment = Gentoo.fetchFloatingComment("3190")
-                withContext(Dispatchers.Main) {
-                    binding.root.visibility = VISIBLE
-                    binding.gentooDescription.text = floatingComment.commentForThis
+            coroutineScope {
+                try {
+                    val floatingComment = Gentoo.fetchFloatingComment("3190")
+                    withContext(Dispatchers.Main) {
+                        binding.root.visibility = VISIBLE
+                        binding.gentooDescription.text = floatingComment.commentForThis
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        binding.root.visibility = GONE
+                    }
                 }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    binding.root.visibility = GONE
-                }
+            }
+
+            coroutineScope {
+                this@GentooFloatingActionButton.chatUrl = Gentoo.getChatUrl("3190")
             }
         }
 

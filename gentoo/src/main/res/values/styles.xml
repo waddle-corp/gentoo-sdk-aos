@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="GentooH1">
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
+    <style name="GentooH2">
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
+    <style name="GentooH3">
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">4sp</item>
+    </style>
+
+    <style name="GentooH4">
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
+    <style name="GentooH6">
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
+    <style name="GentooH7">
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
+    <style name="GentooH8">
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+    </style>
+
+    <style name="GentooH9">
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+    </style>
+
+    <style name="GentooH10">
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+    </style>
+
+    <style name="GentooH11">
+        <item name="android:fontFamily">@font/pretendard_regular</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+</resources>

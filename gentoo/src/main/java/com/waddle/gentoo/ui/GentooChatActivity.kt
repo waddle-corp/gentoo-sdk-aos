@@ -20,6 +20,9 @@ class GentooChatActivity : AppCompatActivity() {
         }
 
         binding.gentooChatView.loadUrl(chatUrl)
+        binding.topBar.setBackButtonClickListener {
+            finish()
+        }
     }
 
     companion object {

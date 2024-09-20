@@ -57,7 +57,7 @@ object Gentoo {
     ): String {
         val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
-        val userId = authResponse.body.randomId
+        val userId = authResponse.randomId
         val floatingProduct = fetchFloatingProduct(itemId, "this")
         val floatingProductAsJson = Json.encodeToString(floatingProduct)
         val hostUrl = if (initializeParams.clientId == "dlst") {
@@ -71,7 +71,7 @@ object Gentoo {
     @Throws(GentooException::class)
     suspend fun fetchFloatingComment(itemId: String): FloatingComment {
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
-        val floatingCommentRequest = FloatingCommentRequest(itemId, authResponse.body.randomId)
+        val floatingCommentRequest = FloatingCommentRequest(itemId, authResponse.randomId)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingComment.value
@@ -81,7 +81,7 @@ object Gentoo {
     @Throws(GentooException::class)
     suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
-        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.body.randomId, target)
+        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.randomId, target)
         return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingProduct.value

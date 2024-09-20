@@ -5,8 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AuthResponse(
-    val statusCode: Int,
-    val body: AuthResponseBody
+//    val statusCode: Int,
+//    val body: AuthResponseBody
+    val randomId: String
 )
 
 @Serializable

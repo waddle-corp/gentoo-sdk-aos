@@ -59,4 +59,19 @@
         <item name="android:textSize">10sp</item>
         <item name="android:lineSpacingExtra">3sp</item>
     </style>
+
+    <style name="GentooProfileMainText">
+        <item name="android:textAppearance">@style/GentooH2</item>
+        <item name="android:textColor">@color/gray800</item>
+    </style>
+
+    <style name="GentooProfileSubText">
+        <item name="android:textAppearance">@style/GentooH9</item>
+        <item name="android:textColor">@color/gray600</item>
+    </style>
+
+    <style name="RoundedImage" parent="Widget.MaterialComponents.ShapeableImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">18dp</item>
+    </style>
 </resources>

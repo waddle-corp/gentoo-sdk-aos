@@ -1,2 +1,5 @@
 <resources>
+    <string name="back_arrow">Back arrow</string>
+    <string name="profile_main_title">젠투</string>
+    <string name="profile_sub_title">술 전문가</string>
 </resources>

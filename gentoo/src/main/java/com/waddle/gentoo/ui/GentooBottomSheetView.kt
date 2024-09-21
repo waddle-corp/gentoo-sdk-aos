@@ -3,6 +3,7 @@ package com.waddle.gentoo.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.LayoutParams
 import androidx.core.view.updateLayoutParams
@@ -49,6 +50,16 @@ class GentooBottomSheetDialog(
                     override fun onSlide(bottomSheet: View, slideOffset: Float) {}
                 }
             )
+
+            binding.gentooChatWebview.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    behavior.isDraggable = false
+                } else if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+                    behavior.isDraggable = true
+                }
+
+                return@setOnTouchListener false
+            }
         }
 
         binding.closeButton.setOnClickListener {

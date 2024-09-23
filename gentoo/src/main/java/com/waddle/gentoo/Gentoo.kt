@@ -52,23 +52,18 @@ object Gentoo {
     // TODO(nathan) : check if it is okay to provide suspend function only
     suspend fun getDetailChatUrl(
         itemId: String,
-        type: ChatType
+        type: ChatType,
+        comment: String
     ): String {
         val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
         val userId = authResponse.randomId
-        val floatingComment = with(fetchFloatingComment(itemId)) {
-            when (type) {
-                ChatType.THIS -> this.commentForThis
-                ChatType.NEEDS -> this.commentForNeeds
-            }
-        }
         val hostUrl = if (initializeParams.clientId == "dlst") {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&u=${userId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${floatingComment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&u=${userId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
     }
 
     suspend fun getHomeChatUrl(): String {

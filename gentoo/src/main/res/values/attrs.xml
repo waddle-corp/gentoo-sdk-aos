@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GentooFloatingActionButton">
+        <attr name="chat_type" format="enum">
+            <enum name="home" value="0" />
+            <enum name="detail" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>

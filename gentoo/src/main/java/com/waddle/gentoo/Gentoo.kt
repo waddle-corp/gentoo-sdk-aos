@@ -22,22 +22,42 @@ object Gentoo {
 
     @Throws(GentooException::class)
     // TODO(nathan) : check if it is okay to provide suspend function only
-    suspend fun getChatUrl(
+    suspend fun getDetailChatUrl(
         userDeviceId: String,
         authCode: String,
         clientId: String,
-        itemId: String
+        itemId: String,
+        type: ChatType
     ): String {
         val authResponse = authenticate(userDeviceId, authCode)
         val userId = authResponse.body.randomId
-        val floatingProduct = fetchFloatingProduct(itemId, userId, "this")
-        val floatingProductAsJson = Json.encodeToString(floatingProduct)
+        val floatingComment = with(fetchFloatingComment(itemId, userId)) {
+            when (type) {
+                ChatType.THIS -> this.commentForThis
+                ChatType.NEEDS -> this.commentForNeeds
+            }
+        }
         val hostUrl = if (clientId == "dlst") {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${clientId.urlEncoded}/sdk/${userId.urlEncoded}?product=${floatingProductAsJson.urlEncoded}" // ${this.hostSrc}/${this.clientId}/sdk/${this.userId}?product=${JSON.stringify(this.floatingProduct)}
+        return "$hostUrl/${clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&u=${userId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${floatingComment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
+    }
+
+    suspend fun getHomeChatUrl(
+        userDeviceId: String,
+        authCode: String,
+        clientId: String,
+    ): String {
+        val authResponse = authenticate(userDeviceId, authCode)
+        val userId = authResponse.body.randomId
+        val hostUrl = if (clientId == "dlst") {
+            "https://demo.gentooai.com"
+        } else {
+            "https://dev-demo.gentooai.com"
+        }
+        return "$hostUrl/${clientId.urlEncoded}/${userId.urlEncoded}?ch=true" // `${hostSrc}/dlst/${userId}?ch=true`
     }
 
     @Throws(GentooException::class)

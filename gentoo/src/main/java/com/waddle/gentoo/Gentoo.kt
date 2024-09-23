@@ -57,32 +57,30 @@ object Gentoo {
         val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
         val userId = authResponse.randomId
-        val floatingComment = with(fetchFloatingComment(itemId, userId)) {
+        val floatingComment = with(fetchFloatingComment(itemId)) {
             when (type) {
                 ChatType.THIS -> this.commentForThis
                 ChatType.NEEDS -> this.commentForNeeds
             }
         }
-        val hostUrl = if (clientId == "dlst") {
+        val hostUrl = if (initializeParams.clientId == "dlst") {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&u=${userId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${floatingComment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&u=${userId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${floatingComment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
     }
 
-    suspend fun getHomeChatUrl(
-        clientId: String,
-    ): String {
+    suspend fun getHomeChatUrl(): String {
         val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
         val userId = authResponse.randomId
-        val hostUrl = if (clientId == "dlst") {
+        val hostUrl = if (initializeParams.clientId == "dlst") {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${clientId.urlEncoded}/${userId.urlEncoded}?ch=true" // `${hostSrc}/dlst/${userId}?ch=true`
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/${userId.urlEncoded}?ch=true" // `${hostSrc}/dlst/${userId}?ch=true`
     }
 
     @Throws(GentooException::class)

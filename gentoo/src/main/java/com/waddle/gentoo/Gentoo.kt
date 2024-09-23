@@ -16,7 +16,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
-// TODO(nathan) : Refactor main class after designing public interface. It's just placeholder at this moment.
 object Gentoo {
     private val apiClient: ApiClient = ApiClient(
         BuildConfig.API_KEY,

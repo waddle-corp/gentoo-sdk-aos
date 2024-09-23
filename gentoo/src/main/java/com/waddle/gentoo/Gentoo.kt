@@ -55,8 +55,7 @@ object Gentoo {
         type: ChatType,
         comment: String
     ): String {
-        val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
-        val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
+        val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
         val hostUrl = if (initializeParams.clientId == "dlst") {
             "https://demo.gentooai.com"
@@ -67,8 +66,7 @@ object Gentoo {
     }
 
     suspend fun getHomeChatUrl(): String {
-        val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
-        val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
+        val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
         val hostUrl = if (initializeParams.clientId == "dlst") {
             "https://demo.gentooai.com"
@@ -80,7 +78,7 @@ object Gentoo {
 
     @Throws(GentooException::class)
     suspend fun fetchFloatingComment(itemId: String): FloatingComment {
-        val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
+        val (_, authResponse) = awaitAuth()
         val floatingCommentRequest = FloatingCommentRequest(itemId, authResponse.randomId)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
@@ -90,12 +88,18 @@ object Gentoo {
 
     @Throws(GentooException::class)
     suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
-        val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
+        val (_, authResponse) = awaitAuth()
         val floatingProductRequest = FloatingProductRequest(itemId, authResponse.randomId, target)
         return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingProduct.value
         }
+    }
+
+    private suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {
+        val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
+        val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
+        return initializeParams to authResponse
     }
 
     @Throws(GentooException::class)

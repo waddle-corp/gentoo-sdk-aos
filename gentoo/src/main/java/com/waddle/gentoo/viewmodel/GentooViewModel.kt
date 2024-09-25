@@ -17,8 +17,6 @@ sealed class GentooViewModel : ViewModel() {
     protected val _chatUrl: MutableStateFlow<String> = MutableStateFlow("")
     val chatUrl: StateFlow<String> = _chatUrl
 
-    abstract val type: FloatingActionButtonType
-
     sealed class UiState {
         data object Invisible : UiState()
         data class Expanded(val type: FloatingActionButtonType, val comment: String) : UiState()
@@ -33,7 +31,6 @@ sealed class GentooViewModel : ViewModel() {
 }
 
 class GentooHomeViewModel : GentooViewModel() {
-    override val type: FloatingActionButtonType = FloatingActionButtonType.HOME
     init {
         viewModelScope.launch {
             try {
@@ -49,7 +46,6 @@ class GentooHomeViewModel : GentooViewModel() {
 class GentooDetailViewModel(
     val itemId: String
 ) : GentooViewModel() {
-    override val type: FloatingActionButtonType = FloatingActionButtonType.DETAIL
     init {
         viewModelScope.launch {
             try {

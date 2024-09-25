@@ -81,7 +81,7 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    suspend fun fetchFloatingComment(itemId: String): FloatingComment {
+    suspend fun fetchFloatingComment(itemId: String): FloatingComment { // TODO : cache
         val (_, authResponse) = awaitAuth()
         val floatingCommentRequest = FloatingCommentRequest(itemId, authResponse.randomId)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {

@@ -22,7 +22,10 @@ object Gentoo {
         BuildConfig.DAILY_SHOT_BASE_URL
     )
 
-    private var initializeParams: InitializeParams? = null
+    private var _initializeParams: InitializeParams? = null
+    private val initializeParams: InitializeParams
+        get() = _initializeParams ?: throw GentooException("Initialize should be called first")
+
     private var authInfo: AuthInfo? = null
 
     /**
@@ -33,14 +36,14 @@ object Gentoo {
     @Synchronized
     fun initialize(params: InitializeParams) {
         // If SDK already has been initialized with same initializeParams, do nothing.
-        if (params == this.initializeParams) return
-        if (this.initializeParams != null) {
+        if (params == this._initializeParams) return
+        if (this._initializeParams != null) {
             // If initialize is requested while SDK has been initialized with different InitializedParams.
             // reset existing resources
             authJob?.cancel()
         }
 
-        this.initializeParams = params
+        this._initializeParams = params
         authJob = CoroutineScope(Dispatchers.IO).async {
             authenticate(params.udid, params.authCode)
             // TODO catch authenticate's exception here.
@@ -48,7 +51,6 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    // TODO(nathan) : check if it is okay to provide suspend function only
     suspend fun getDetailChatUrl(
         itemId: String,
         type: ChatType,
@@ -96,7 +98,7 @@ object Gentoo {
     }
 
     private suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {
-        val initializeParams = this.initializeParams ?: throw GentooException("Initialize should be called first")
+        val initializeParams = this.initializeParams
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
         return initializeParams to authResponse
     }

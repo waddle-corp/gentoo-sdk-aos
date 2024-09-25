@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.waddle.gentoo.ChatType
 import com.waddle.gentoo.FloatingActionButtonType
 import com.waddle.gentoo.Gentoo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +33,7 @@ sealed class GentooViewModel : ViewModel() {
 
 class GentooHomeViewModel : GentooViewModel() {
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 _uiState.emit(UiState.Expanded(FloatingActionButtonType.HOME, HOME_FAB_COMMENT))
                 _chatUrl.emit(Gentoo.getHomeChatUrl())
@@ -47,7 +48,7 @@ class GentooDetailViewModel(
     val itemId: String
 ) : GentooViewModel() {
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val floatingComment = Gentoo.fetchFloatingComment(itemId)
                 _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.THIS, floatingComment.commentForThis))

@@ -11,10 +11,13 @@ import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.api.response.FloatingProduct
 import com.waddle.gentoo.internal.exception.GentooException
 import com.waddle.gentoo.internal.util.urlEncoded
+import com.waddle.gentoo.ui.GentooFloatingActionButton
+import com.waddle.gentoo.viewmodel.GentooViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 object Gentoo {
     private val apiClient: ApiClient = ApiClient(
@@ -94,6 +97,24 @@ object Gentoo {
         return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingProduct.value
+        }
+    }
+
+    fun bind(
+        view: GentooFloatingActionButton,
+        viewModel: GentooViewModel,
+        lifecycleScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    ) {
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                view.uiState = state
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.chatUrl.collect { url ->
+                view.chatUrl = url
+            }
         }
     }
 

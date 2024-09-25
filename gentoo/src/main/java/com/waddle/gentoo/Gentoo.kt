@@ -61,7 +61,7 @@ object Gentoo {
     ): String {
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
-        val hostUrl = if (initializeParams.clientId == "dlst") {
+        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
@@ -72,7 +72,7 @@ object Gentoo {
     suspend fun getHomeChatUrl(): String {
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
-        val hostUrl = if (initializeParams.clientId == "dlst") {
+        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"

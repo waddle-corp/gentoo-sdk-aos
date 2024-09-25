@@ -15,7 +15,8 @@ import com.waddle.gentoo.internal.util.toDp
 @SuppressLint("ClickableViewAccessibility")
 class GentooBottomSheetDialog(
     context: Context,
-    private val chatUrl: String,
+    chatUrl: String,
+    onDismissListener: () -> Unit = {}
 ) : BottomSheetDialog(context) {
     private val binding: DialogGentooBottomSheetBinding = DialogGentooBottomSheetBinding.inflate(
         LayoutInflater.from(context)
@@ -67,5 +68,7 @@ class GentooBottomSheetDialog(
         }
 
         binding.gentooChatWebview.loadUrl(chatUrl)
+
+        this.setOnDismissListener { onDismissListener() }
     }
 }

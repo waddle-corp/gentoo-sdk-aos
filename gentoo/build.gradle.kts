@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.kotlin.serialization)
     implementation(libs.kotlin.coroutine.core)
     implementation(libs.kotlin.coroutine.android)
+    implementation(libs.lifecycle.viewmodel.ktx)
     api(libs.material)
     implementation(libs.annotation)
 

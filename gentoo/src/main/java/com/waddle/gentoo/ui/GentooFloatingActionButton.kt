@@ -22,7 +22,8 @@ class GentooFloatingActionButton @JvmOverloads constructor(
     private val binding: ViewGentooFloatingActionButtonBinding = ViewGentooFloatingActionButtonBinding.inflate(
         LayoutInflater.from(context)
     )
-
+    var onDismiss: (() -> Unit)? = null
+    var onClick: (() -> Unit)? = null
     var chatUrl: String = ""
     var uiState: GentooViewModel.UiState = GentooViewModel.UiState.Invisible
         set(value) {
@@ -53,8 +54,8 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                 is GentooViewModel.UiState.Collapsed -> state.type
                 else -> return@setOnClickListener
             }
-            Log.e("nathan", "url : $url")
 
+            onClick?.invoke()
             when (type) {
                 FloatingActionButtonType.HOME -> {
                     val intent = Intent(context, GentooChatActivity::class.java)
@@ -62,7 +63,7 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                     context.startActivity(intent)
                 }
                 FloatingActionButtonType.DETAIL -> {
-                    GentooBottomSheetDialog(context, url) { }.show()
+                    GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
             }
         }

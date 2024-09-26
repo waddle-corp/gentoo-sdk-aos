@@ -4,10 +4,10 @@ import com.waddle.gentoo.internal.api.ApiClient
 import com.waddle.gentoo.internal.api.request.AuthRequest
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
 import com.waddle.gentoo.internal.api.response.AuthResponse
-import com.waddle.gentoo.internal.api.response.FloatingCommentResponse
+import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.FloatingProductRequest
-import com.waddle.gentoo.internal.api.response.PostRecommendResponse
+import com.waddle.gentoo.internal.api.response.FloatingProduct
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.runBlocking
@@ -36,8 +36,8 @@ internal class ApiRequestsTest {
         }
 
         val floatingCommentRequest = FloatingCommentRequest(testItemId, userId)
-        val response = apiClient.send(floatingCommentRequest, FloatingCommentResponse.serializer())
-        response.shouldBeTypeOf<GentooResponse.Success<FloatingCommentResponse>>()
+        val response = apiClient.send(floatingCommentRequest, FloatingComment.serializer())
+        response.shouldBeTypeOf<GentooResponse.Success<FloatingComment>>()
         Unit
     }
 
@@ -50,12 +50,12 @@ internal class ApiRequestsTest {
         }
 
         val thisRequest = FloatingProductRequest(testItemId, userId, "this")
-        var response = apiClient.send(thisRequest, PostRecommendResponse.serializer())
-        response.shouldBeTypeOf<GentooResponse.Success<PostRecommendResponse>>()
+        var response = apiClient.send(thisRequest, FloatingProduct.serializer())
+        response.shouldBeTypeOf<GentooResponse.Success<FloatingProduct>>()
 
         val needsRequest = FloatingProductRequest(testItemId, userId, "needs")
-        response = apiClient.send(needsRequest, PostRecommendResponse.serializer())
-        response.shouldBeTypeOf<GentooResponse.Success<PostRecommendResponse>>()
+        response = apiClient.send(needsRequest, FloatingProduct.serializer())
+        response.shouldBeTypeOf<GentooResponse.Success<FloatingProduct>>()
         Unit
     }
 

@@ -1,13 +1,9 @@
 package com.waddle.gentoo.internal.api.response
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class FloatingComment(
-    @SerialName("this")
-    val commentForThis: String,
-    @SerialName("needs")
-    val commentForNeeds: String,
+    val message: String,
     val case: String
 )

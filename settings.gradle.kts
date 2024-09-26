@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "gentoo-sdk-aos"
 include(":gentoo")
+include(":gentoo-sample")

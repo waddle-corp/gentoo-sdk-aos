@@ -3,17 +3,21 @@ agp = "8.5.1"
 kotlin = "1.9.25"
 junit = "4.13.2"
 runner = "1.0.2"
-appcompatV7 = "28.0.0"
 okhttp = "4.12.0"
 kotlin-serialization = "1.6.3"
 kotlin-coroutine = "1.8.1"
 kotest-assertion = "5.7.2"
 mockk = "1.13.11"
+material = "1.12.0"
+appcompat = "1.7.0"
+activity = "1.8.0"
+constraintlayout = "2.1.4"
+annotation = "1.8.2"
+lifecycle-viewmodel-ktx = "2.8.6"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 runner = { group = "com.android.support.test", name = "runner", version.ref = "runner" }
-appcompat-v7 = { group = "com.android.support", name = "appcompat-v7", version.ref = "appcompatV7" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization" }
@@ -22,7 +26,13 @@ kotlin-coroutine-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-co
 kotlin-coroutine-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlin-coroutine" }
 kotest-assertion = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest-assertion" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout"}
+annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel-ktx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,5 +1,6 @@
 package com.waddle.gentoo.internal.util
 
+import android.content.Context
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -11,3 +12,7 @@ internal val String.urlEncoded: String
             this
         }
     }
+
+internal fun Int.toDp(context: Context): Int {
+    return (this * context.resources.displayMetrics.density).toInt()
+}

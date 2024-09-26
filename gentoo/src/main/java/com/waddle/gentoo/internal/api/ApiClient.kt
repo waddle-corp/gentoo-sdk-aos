@@ -1,6 +1,6 @@
 package com.waddle.gentoo.internal.api
 
-import android.support.annotation.WorkerThread
+import androidx.annotation.WorkerThread
 import com.waddle.gentoo.BuildConfig
 import com.waddle.gentoo.internal.api.response.ErrorResponse
 import com.waddle.gentoo.internal.exception.GentooException

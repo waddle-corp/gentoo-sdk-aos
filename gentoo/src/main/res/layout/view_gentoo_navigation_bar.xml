@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="@color/white000"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <View
+        android:id="@+id/center"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/back_arrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@string/back_arrow"
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp"
+        android:src="@drawable/icn_back_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/gentoo_icon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/icon_gentoo"
+        android:layout_marginStart="16dp"
+        android:scaleX="-1"
+        app:shapeAppearanceOverlay="@style/RoundedImage"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/gray300"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/back_arrow"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/profile_main_title"
+        style="@style/GentooProfileMainText"
+        app:layout_constraintBottom_toTopOf="@id/center"
+        app:layout_constraintStart_toEndOf="@id/gentoo_icon" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/profile_sub_title"
+        style="@style/GentooProfileSubText"
+        app:layout_constraintTop_toBottomOf="@id/center"
+        app:layout_constraintStart_toEndOf="@id/gentoo_icon" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

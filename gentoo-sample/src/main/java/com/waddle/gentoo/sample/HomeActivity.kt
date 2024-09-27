@@ -1,26 +1,27 @@
 package com.waddle.gentoo.sample
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.waddle.gentoo.Gentoo
-import com.waddle.gentoo.sample.databinding.ActivityMainBinding
-import com.waddle.gentoo.viewmodel.GentooDetailViewModel
-import com.waddle.gentoo.viewmodel.GentooDetailViewModelFactory
+import com.waddle.gentoo.sample.databinding.ActivityHomeBinding
 import com.waddle.gentoo.viewmodel.GentooHomeViewModel
 
-class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+class HomeActivity : AppCompatActivity() {
+    lateinit var binding: ActivityHomeBinding
+    val viewModel: GentooHomeViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
+        binding = ActivityHomeBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -28,15 +29,20 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        binding.homeButton.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
-        }
+        setSupportActionBar(binding.topBar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.topBar.setNavigationIconTint(ContextCompat.getColor(this, R.color.white))
 
-        binding.detailButton.setOnClickListener {
-            val intent = Intent(this, DetailActivity::class.java)
-            intent.putExtra(DetailActivity.EXTRA_ITEM_ID, "3190") // replace hard-coded item id to selected item id
-            startActivity(intent)
+        Gentoo.bind(binding.gentooFloatingActionButton, viewModel, lifecycleScope)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

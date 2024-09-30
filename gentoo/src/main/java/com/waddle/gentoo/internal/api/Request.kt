@@ -1,5 +1,6 @@
 package com.waddle.gentoo.internal.api
 
+import com.waddle.gentoo.internal.util.urlEncoded
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -41,6 +42,6 @@ internal interface DeleteRequest : ApiRequest {
 }
 
 private val Map<String, String>.queryString: String
-    get() = this.entries.joinToString(separator = "&") { "${it.key}=${it.value}" }
+    get() = this.entries.joinToString(separator = "&") { "${it.key.urlEncoded}=${it.value.urlEncoded}" }
 
 internal val APPLICATION_JSON : MediaType? = "application/json; charset=utf-8".toMediaTypeOrNull()

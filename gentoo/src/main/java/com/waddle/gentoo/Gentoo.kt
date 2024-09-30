@@ -69,7 +69,7 @@ object Gentoo {
         return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
     }
 
-    suspend fun getHomeChatUrl(): String {
+    suspend fun getDefaultChatUrl(): String {
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
         val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
@@ -81,9 +81,9 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    suspend fun fetchFloatingComment(itemId: String): FloatingComment { // TODO : cache
-        val (_, authResponse) = awaitAuth()
-        val floatingCommentRequest = FloatingCommentRequest(itemId, authResponse.randomId)
+    suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment { // TODO : cache
+        val (params, authResponse) = awaitAuth()
+        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.randomId, chatType)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingComment.value
@@ -116,6 +116,9 @@ object Gentoo {
                 view.chatUrl = url
             }
         }
+
+        view.onDismiss = { viewModel.onBottomSheetDismissed() }
+        view.onClick = { viewModel.onClicked() }
     }
 
     private suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {

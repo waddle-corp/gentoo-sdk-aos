@@ -3,7 +3,6 @@ package com.waddle.gentoo.ui
 import android.content.Context
 import android.content.Intent
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -22,7 +21,8 @@ class GentooFloatingActionButton @JvmOverloads constructor(
     private val binding: ViewGentooFloatingActionButtonBinding = ViewGentooFloatingActionButtonBinding.inflate(
         LayoutInflater.from(context)
     )
-
+    var onDismiss: (() -> Unit)? = null
+    var onClick: (() -> Unit)? = null
     var chatUrl: String = ""
     var uiState: GentooViewModel.UiState = GentooViewModel.UiState.Invisible
         set(value) {
@@ -53,16 +53,16 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                 is GentooViewModel.UiState.Collapsed -> state.type
                 else -> return@setOnClickListener
             }
-            Log.e("nathan", "url : $url")
 
+            onClick?.invoke()
             when (type) {
-                FloatingActionButtonType.HOME -> {
+                FloatingActionButtonType.DEFAULT -> {
                     val intent = Intent(context, GentooChatActivity::class.java)
                     intent.putExtra(GentooChatActivity.INTENT_CHAT_URL, url)
                     context.startActivity(intent)
                 }
                 FloatingActionButtonType.DETAIL -> {
-                    GentooBottomSheetDialog(context, url) { }.show()
+                    GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
             }
         }

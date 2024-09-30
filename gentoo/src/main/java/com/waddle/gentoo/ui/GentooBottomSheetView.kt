@@ -61,6 +61,10 @@ class GentooBottomSheetDialog(
 
                 return@setOnTouchListener false
             }
+
+            binding.gentooChatWebview.onInputFocused = {
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
         }
 
         binding.closeButton.setOnClickListener {

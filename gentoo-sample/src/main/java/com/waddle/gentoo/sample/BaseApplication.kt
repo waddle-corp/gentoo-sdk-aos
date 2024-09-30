@@ -8,7 +8,11 @@ class BaseApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Gentoo.initialize(
-            InitializeParams("test", "test", "dlst")
+            InitializeParams(
+                clientId = "dlst",
+                authCode = "test",
+                udid = "test"
+            )
         )
     }
 }

@@ -7,6 +7,6 @@ enum class ChatType(internal val asString: String) {
 }
 
 enum class FloatingActionButtonType(internal val asString: String) {
-    HOME("home"),
+    DEFAULT("default"),
     DETAIL("detail")
 }

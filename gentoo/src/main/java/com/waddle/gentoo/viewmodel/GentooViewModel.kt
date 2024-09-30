@@ -37,16 +37,16 @@ sealed class GentooViewModel : ViewModel() {
     }
 }
 
-class GentooHomeViewModel : GentooViewModel() {
+class GentooDefaultViewModel : GentooViewModel() {
     var uiStateJob: Job? = null
     init {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val floatingComment = Gentoo.fetchFloatingComment(ChatType.DEFAULT, "default")
-                _uiState.emit(UiState.Expanded(FloatingActionButtonType.HOME, floatingComment.message))
-                _chatUrl.emit(Gentoo.getHomeChatUrl())
+                _uiState.emit(UiState.Expanded(FloatingActionButtonType.DEFAULT, floatingComment.message))
+                _chatUrl.emit(Gentoo.getDefaultChatUrl())
                 delay(AUTO_COLLAPSED_DELAY)
-                _uiState.emit(UiState.Collapsed(FloatingActionButtonType.HOME))
+                _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DEFAULT))
             } catch (_: Exception) {}
         }
     }

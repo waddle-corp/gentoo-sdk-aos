@@ -69,7 +69,7 @@ object Gentoo {
         return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
     }
 
-    suspend fun getHomeChatUrl(): String {
+    suspend fun getDefaultChatUrl(): String {
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
         val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {

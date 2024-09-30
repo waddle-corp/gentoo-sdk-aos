@@ -11,17 +11,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.waddle.gentoo.Gentoo
-import com.waddle.gentoo.sample.databinding.ActivityHomeBinding
-import com.waddle.gentoo.viewmodel.GentooHomeViewModel
+import com.waddle.gentoo.sample.databinding.ActivityDefaultBinding
+import com.waddle.gentoo.viewmodel.GentooDefaultViewModel
 
-class HomeActivity : AppCompatActivity() {
-    lateinit var binding: ActivityHomeBinding
-    val viewModel: GentooHomeViewModel by viewModels()
+class DefaultActivity : AppCompatActivity() {
+    lateinit var binding: ActivityDefaultBinding
+    val viewModel: GentooDefaultViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityHomeBinding.inflate(LayoutInflater.from(this))
+        binding = ActivityDefaultBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

@@ -161,9 +161,10 @@ object Gentoo {
         )
         return when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
             is GentooResponse.Failure -> {
+                Logger.d("Failed to log user event. ${response.errorResponse}")
             }
             is GentooResponse.Success -> {
-
+                Logger.d("Succeeded to log user event. ${response.value.message}")
             }
         }
     }

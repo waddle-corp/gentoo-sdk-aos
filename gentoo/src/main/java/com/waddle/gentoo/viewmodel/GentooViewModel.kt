@@ -6,7 +6,9 @@ import com.waddle.gentoo.ChatType
 import com.waddle.gentoo.FloatingActionButtonType
 import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.Logger
+import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.response.FloatingComment
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 sealed class GentooViewModel : ViewModel() {
+    abstract val itemId: String?
     protected val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Invisible)
     val uiState: StateFlow<UiState> = _uiState
 
@@ -25,6 +28,18 @@ sealed class GentooViewModel : ViewModel() {
     open fun onBottomSheetDismissed() {}
 
     open fun onClicked() {}
+
+    fun markAsFloatingButtonRendered() {
+        CoroutineScope(Dispatchers.IO).launch {
+            Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_RENDERED, itemId = itemId)
+        }
+    }
+
+    fun markAsFloatingButtonClicked() {
+        CoroutineScope(Dispatchers.IO).launch {
+            Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_CLICKED, itemId = itemId)
+        }
+    }
 
     sealed class UiState {
         data object Invisible : UiState()
@@ -39,6 +54,9 @@ sealed class GentooViewModel : ViewModel() {
 }
 
 class GentooDefaultViewModel : GentooViewModel() {
+    override val itemId: String?
+        get() = null
+
     var uiStateJob: Job? = null
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -60,7 +78,7 @@ class GentooDefaultViewModel : GentooViewModel() {
 }
 
 class GentooDetailViewModel(
-    val itemId: String
+    override val itemId: String
 ) : GentooViewModel() {
     private var uiStateJob: Job? = null
     private var currentChatType: ChatType = ChatType.DEFAULT

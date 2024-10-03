@@ -25,14 +25,11 @@ internal class ApiClient(
     private val apiKey: String,
     private val baseUrl: String
 ) {
+    val httpLoggingInterceptor: HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
+        setLevel(HttpLoggingInterceptor.Level.NONE)
+    }
     val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(
-            HttpLoggingInterceptor().apply {
-                // Print http log only when it is debug mode for security reason.
-                val level = if (Logger.loggerLevel == LogLevel.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
-                setLevel(level)
-            }
-        )
+        .addInterceptor(httpLoggingInterceptor)
         .build()
 
     private val json = Json { ignoreUnknownKeys = true }

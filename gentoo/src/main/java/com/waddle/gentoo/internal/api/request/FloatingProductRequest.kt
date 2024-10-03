@@ -12,7 +12,7 @@ internal class FloatingProductRequest(
     private val itemId: String,
     private val userId: String,
     private val target: String,
-    private val channelId: String = "mobile" // TODO : check if it is fixed string
+    private val channelId: String = "mobile"
 ) : PostRequest {
     override val requestBody: RequestBody
         get() = buildJsonObject {

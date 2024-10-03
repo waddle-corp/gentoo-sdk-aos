@@ -4,18 +4,18 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class AuthResponse(
+internal data class AuthResponse(
 //    val statusCode: Int,
 //    val body: AuthResponseBody
     val randomId: String
 )
 
 @Serializable
-data class AuthResponseBody(
+internal data class AuthResponseBody(
     val randomId: String
 )
 
-data class AuthInfo(
+internal data class AuthInfo(
     val udid: String,
     val authCode: String,
     val authResponse: AuthResponse

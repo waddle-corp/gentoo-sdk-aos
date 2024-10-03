@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
 import androidx.core.view.updateLayoutParams
 import com.waddle.gentoo.FloatingActionButtonType
@@ -23,6 +24,8 @@ class GentooFloatingActionButton @JvmOverloads constructor(
     )
     var onDismiss: (() -> Unit)? = null
     var onClick: (() -> Unit)? = null
+    var onViewRendered: () -> Unit = {}
+
     var chatUrl: String = ""
     var uiState: GentooViewModel.UiState = GentooViewModel.UiState.Invisible
         set(value) {
@@ -66,6 +69,15 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                 }
             }
         }
+
+        this.binding.root.viewTreeObserver.addOnGlobalLayoutListener(
+            object : OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    onViewRendered()
+                }
+            }
+        )
     }
 
     private fun expand() {

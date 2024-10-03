@@ -97,7 +97,11 @@ object Gentoo {
         }
 
         view.onDismiss = { viewModel.onBottomSheetDismissed() }
-        view.onClick = { viewModel.onClicked() }
+        view.onClick = {
+            viewModel.onClicked()
+            viewModel.markAsFloatingButtonClicked()
+        }
+        view.onViewRendered = { viewModel.markAsFloatingButtonRendered() }
     }
 
     @Throws(GentooException::class)

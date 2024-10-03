@@ -29,13 +29,13 @@ sealed class GentooViewModel : ViewModel() {
 
     open fun onClicked() {}
 
-    protected fun markAsFloatingButtonRendered() {
+    fun markAsFloatingButtonRendered() {
         CoroutineScope(Dispatchers.IO).launch {
             Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_RENDERED, itemId = itemId)
         }
     }
 
-    protected fun markAsFloatingButtonClicked() {
+    fun markAsFloatingButtonClicked() {
         CoroutineScope(Dispatchers.IO).launch {
             Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_CLICKED, itemId = itemId)
         }

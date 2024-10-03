@@ -36,20 +36,35 @@ object Gentoo {
      */
     private var authJob: Deferred<AuthResponse>? = null
 
+    var logLevel: LogLevel
+        get() = Logger.loggerLevel
+        set(value) {
+            Logger.loggerLevel = value
+        }
+
     @Synchronized
     fun initialize(params: InitializeParams) {
+        Logger.d("Gentoo.initialize(params: $params)")
         // If SDK already has been initialized with same initializeParams, do nothing.
-        if (params == this._initializeParams) return
+        if (params == this._initializeParams) {
+            Logger.d("Gentoo.initialize() >> already initialized")
+            return
+        }
         if (this._initializeParams != null) {
             // If initialize is requested while SDK has been initialized with different InitializedParams.
             // reset existing resources
+            Logger.d("Gentoo.initialize() >> already initialized with different params.")
             authJob?.cancel()
         }
 
         this._initializeParams = params
         authJob = CoroutineScope(Dispatchers.IO).async {
-            authenticate(params.udid, params.authCode)
-            // TODO catch authenticate's exception here.
+            try {
+                authenticate(params.udid, params.authCode)
+            } catch (e: Exception) {
+                Logger.e("Gentoo.initialize() >> failed to authenticate(e: $e) ")
+                throw e
+            }
         }
     }
 
@@ -59,6 +74,7 @@ object Gentoo {
         type: ChatType,
         comment: String
     ): String {
+        Logger.d("Gentoo.getDetailChatUrl(itemId: $itemId, type: $type, comment: $comment)")
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
         val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
@@ -66,10 +82,13 @@ object Gentoo {
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}".also {
+            Logger.d("Gentoo.getDetailChatUrl() >> built chat url: $it")
+        }
     }
 
     suspend fun getDefaultChatUrl(): String {
+        Logger.d("Gentoo.getDefaultChatUrl()")
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.randomId
         val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
@@ -77,11 +96,14 @@ object Gentoo {
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/${userId.urlEncoded}?ch=true" // `${hostSrc}/dlst/${userId}?ch=true`
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/${userId.urlEncoded}?ch=true".also {
+            Logger.d("Gentoo.getDefaultChatUrl() >> built chat url: $it")
+        }
     }
 
     @Throws(GentooException::class)
-    suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment { // TODO : cache
+    suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment {
+        Logger.d("Gentoo.fetchFloatingComment(chatType: $chatType, itemId: $itemId)")
         val (params, authResponse) = awaitAuth()
         val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.randomId, chatType)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
@@ -92,6 +114,7 @@ object Gentoo {
 
     @Throws(GentooException::class)
     suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
+        Logger.d("Gentoo.fetchFloatingProduct(itemId: $itemId, target: $target)")
         val (_, authResponse) = awaitAuth()
         val floatingProductRequest = FloatingProductRequest(itemId, authResponse.randomId, target)
         return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
@@ -105,6 +128,7 @@ object Gentoo {
         viewModel: GentooViewModel,
         lifecycleScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     ) {
+        Logger.d("Gentoo.bind(view: $view, viewModel: $viewModel, lifecycleScope: $lifecycleScope)")
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 view.uiState = state
@@ -129,8 +153,10 @@ object Gentoo {
 
     @Throws(GentooException::class)
     private suspend fun authenticate(udid: String, authCode: String): AuthResponse {
+        Logger.d("Gentoo.authenticate(udid: $udid)")
         // if there is same auth info with given userDeviceId and authCode, early return cached AuthResponse
         this.authInfo?.let {
+            Logger.d("Gentoo.authenticate() >> already authenticated with udid($udid)")
             if (it.udid == udid && it.authCode == authCode) return it.authResponse
         }
 

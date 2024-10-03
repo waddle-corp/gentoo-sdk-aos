@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.waddle.gentoo.ChatType
 import com.waddle.gentoo.FloatingActionButtonType
 import com.waddle.gentoo.Gentoo
+import com.waddle.gentoo.Logger
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -43,11 +44,17 @@ class GentooDefaultViewModel : GentooViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val floatingComment = Gentoo.fetchFloatingComment(ChatType.DEFAULT, "default")
+                Logger.d("GentooDefaultViewModel.init() >> fetchFloatingComment result: $floatingComment")
                 _uiState.emit(UiState.Expanded(FloatingActionButtonType.DEFAULT, floatingComment.message))
+                Logger.i("GentooDefaultViewModel.init() >> change ui state to ${_uiState.value}")
                 _chatUrl.emit(Gentoo.getDefaultChatUrl())
+                Logger.d("GentooDefaultViewModel.init() >> chat url : ${_chatUrl.value}")
                 delay(AUTO_COLLAPSED_DELAY)
                 _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DEFAULT))
-            } catch (_: Exception) {}
+                Logger.i("GentooDefaultViewModel.init() >> change ui state to ${_uiState.value}")
+            } catch (e: Exception) {
+                Logger.e("GentooDefaultViewModel.init() e: $e")
+            }
         }
     }
 }
@@ -64,31 +71,44 @@ class GentooDetailViewModel(
     }
 
     private fun updateFloatingComment(fromNeeds: Boolean) {
+        Logger.i("GentooDetailViewModel.updateFloatingComment(fromNeeds: $fromNeeds)")
         uiStateJob = viewModelScope.launch(Dispatchers.IO) {
-            if (!fromNeeds) {
-                currentChatType = ChatType.THIS
-                val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.THIS, itemId).also {
-                    this@GentooDetailViewModel.thisFloatingComment = it
+            try {
+                if (!fromNeeds) {
+                    currentChatType = ChatType.THIS
+                    val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.THIS, itemId).also {
+                        this@GentooDetailViewModel.thisFloatingComment = it
+                    }
+                    Logger.d("GentooDetailViewModel.updateFloatingComment() >> thisFloatingComment: $thisFloatingComment")
+                    _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.THIS, thisFloatingComment.message))
+                    Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
+                    _uiState.emit(UiState.Expanded(FloatingActionButtonType.DETAIL, thisFloatingComment.message))
+                    Logger.i("GentooDetailViewModel.updateFloatingComment() >> change ui state to ${_uiState.value}")
+                    delay(AUTO_COLLAPSED_DELAY)
                 }
 
-                _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.THIS, thisFloatingComment.message))
-                _uiState.emit(UiState.Expanded(FloatingActionButtonType.DETAIL, thisFloatingComment.message))
+                _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DETAIL))
+                Logger.i("GentooDetailViewModel.updateFloatingComment() >> change ui state to ${_uiState.value}")
+                val deferred = async {
+                    this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.NEEDS, itemId).also {
+                        this@GentooDetailViewModel.needsFloatingComment = it
+                    }.also {
+                        Logger.d("GentooDetailViewModel.updateFloatingComment() >> needsFloatingComment: $it")
+                    }
+                }
+                delay(COMMENT_CHANGE_TO_NEEDS_DELAY)
+                currentChatType = ChatType.NEEDS
+                val needsFloatingComment = deferred.await()
+                _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.NEEDS,  needsFloatingComment.message))
+                Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
+                _uiState.emit(UiState.Expanded(FloatingActionButtonType.DETAIL, needsFloatingComment.message))
+                Logger.i("GentooDetailViewModel.updateFloatingComment() >> change ui state to ${_uiState.value}")
                 delay(AUTO_COLLAPSED_DELAY)
+                _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DETAIL))
+                Logger.i("GentooDetailViewModel.updateFloatingComment() >> change ui state to ${_uiState.value}")
+            } catch (e: Exception) {
+                Logger.e("GentooDetailViewModel.updateFloatingComment() e: $e")
             }
-
-            _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DETAIL))
-            val deferred = async {
-                this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.NEEDS, itemId).also {
-                    this@GentooDetailViewModel.needsFloatingComment = it
-                }
-            }
-            delay(COMMENT_CHANGE_TO_NEEDS_DELAY)
-            currentChatType = ChatType.NEEDS
-            val needsFloatingComment = deferred.await()
-            _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.NEEDS,  needsFloatingComment.message))
-            _uiState.emit(UiState.Expanded(FloatingActionButtonType.DETAIL, needsFloatingComment.message))
-            delay(AUTO_COLLAPSED_DELAY)
-            _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DETAIL))
         }
     }
 
@@ -103,6 +123,7 @@ class GentooDetailViewModel(
         } else {
             viewModelScope.launch {
                 _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DETAIL))
+                Logger.i("GentooDetailViewModel.updateFloatingComment() >> change ui state to ${_uiState.value}")
             }
         }
     }

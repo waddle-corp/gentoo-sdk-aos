@@ -17,6 +17,8 @@ class GentooChatView @JvmOverloads constructor(
     init {
         this.settings.javaScriptEnabled = true
         this.settings.domStorageEnabled = true
+        this.focusable = FOCUSABLE_AUTO
+        isFocusableInTouchMode = true
 
         webViewClient = WebViewClient()
         webChromeClient = WebChromeClient()

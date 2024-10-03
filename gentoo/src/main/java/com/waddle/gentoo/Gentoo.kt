@@ -53,53 +53,6 @@ object Gentoo {
         }
     }
 
-    @Throws(GentooException::class)
-    suspend fun getDetailChatUrl(
-        itemId: String,
-        type: ChatType,
-        comment: String
-    ): String {
-        val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.randomId
-        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
-            "https://demo.gentooai.com"
-        } else {
-            "https://dev-demo.gentooai.com"
-        }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
-    }
-
-    suspend fun getDefaultChatUrl(): String {
-        val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.randomId
-        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
-            "https://demo.gentooai.com"
-        } else {
-            "https://dev-demo.gentooai.com"
-        }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/${userId.urlEncoded}?ch=true" // `${hostSrc}/dlst/${userId}?ch=true`
-    }
-
-    @Throws(GentooException::class)
-    suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment { // TODO : cache
-        val (params, authResponse) = awaitAuth()
-        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.randomId, chatType)
-        return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
-            is GentooResponse.Success -> floatingComment.value
-        }
-    }
-
-    @Throws(GentooException::class)
-    suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
-        val (_, authResponse) = awaitAuth()
-        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.randomId, target)
-        return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
-            is GentooResponse.Success -> floatingProduct.value
-        }
-    }
-
     fun bind(
         view: GentooFloatingActionButton,
         viewModel: GentooViewModel,
@@ -119,6 +72,53 @@ object Gentoo {
 
         view.onDismiss = { viewModel.onBottomSheetDismissed() }
         view.onClick = { viewModel.onClicked() }
+    }
+
+    @Throws(GentooException::class)
+    internal suspend fun getDetailChatUrl(
+        itemId: String,
+        type: ChatType,
+        comment: String
+    ): String {
+        val (initializeParams, authResponse) = awaitAuth()
+        val userId = authResponse.randomId
+        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
+            "https://demo.gentooai.com"
+        } else {
+            "https://dev-demo.gentooai.com"
+        }
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}" // this.chatUrl = `${hostSrc}/dlst/sdk/${userId}?i=${itemId}&u=${userId}&t=${type}&ch=true&fc=${floatingComment}`
+    }
+
+    internal suspend fun getDefaultChatUrl(): String {
+        val (initializeParams, authResponse) = awaitAuth()
+        val userId = authResponse.randomId
+        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
+            "https://demo.gentooai.com"
+        } else {
+            "https://dev-demo.gentooai.com"
+        }
+        return "$hostUrl/${initializeParams.clientId.urlEncoded}/${userId.urlEncoded}?ch=true" // `${hostSrc}/dlst/${userId}?ch=true`
+    }
+
+    @Throws(GentooException::class)
+    internal suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment { // TODO : cache
+        val (params, authResponse) = awaitAuth()
+        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.randomId, chatType)
+        return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
+            is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
+            is GentooResponse.Success -> floatingComment.value
+        }
+    }
+
+    @Throws(GentooException::class)
+    internal suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
+        val (_, authResponse) = awaitAuth()
+        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.randomId, target)
+        return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
+            is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
+            is GentooResponse.Success -> floatingProduct.value
+        }
     }
 
     private suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {

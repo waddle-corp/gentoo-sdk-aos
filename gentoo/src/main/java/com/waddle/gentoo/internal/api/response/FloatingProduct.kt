@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FloatingProduct(
+internal data class FloatingProduct(
     val text: String,
     val example: List<String>,
     val intent: String,
@@ -14,7 +14,7 @@ data class FloatingProduct(
 )
 
 @Serializable
-data class Product(
+internal data class Product(
     val type: String,
     val serviceType: String,
     val imageUrl: String,
@@ -31,7 +31,7 @@ data class Product(
 )
 
 @Serializable
-data class Tag(
+internal data class Tag(
     val name: String,
     @SerialName("text_color")
     val textColor: String,

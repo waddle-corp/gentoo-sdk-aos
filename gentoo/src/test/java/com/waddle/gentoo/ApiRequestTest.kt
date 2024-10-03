@@ -31,11 +31,11 @@ internal class ApiRequestsTest {
     fun test_floatingCommentRequest() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val userId = when (val response = apiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Success -> response.value.body.randomId
+            is GentooResponse.Success -> response.value.randomId
             is GentooResponse.Failure -> fail("AuthRequest should not fail")
         }
 
-        val floatingCommentRequest = FloatingCommentRequest(testItemId, userId)
+        val floatingCommentRequest = FloatingCommentRequest("dlst", testItemId, userId, ChatType.DEFAULT)
         val response = apiClient.send(floatingCommentRequest, FloatingComment.serializer())
         response.shouldBeTypeOf<GentooResponse.Success<FloatingComment>>()
         Unit
@@ -45,7 +45,7 @@ internal class ApiRequestsTest {
     fun test_floatingProductRequest() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val userId = when (val response = apiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Success -> response.value.body.randomId
+            is GentooResponse.Success -> response.value.randomId
             is GentooResponse.Failure -> fail("AuthRequest should not fail")
         }
 

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
 }
 
 android {
@@ -65,4 +66,17 @@ dependencies {
     testImplementation(libs.kotest.assertion)
     testImplementation(libs.mockk)
     androidTestImplementation(libs.runner)
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.waddle-corp"
+                artifactId = "gentoo"
+                version = "1.0.0-beta"
+            }
+        }
+    }
 }

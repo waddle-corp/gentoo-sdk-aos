@@ -21,6 +21,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import okhttp3.logging.HttpLoggingInterceptor
 
 object Gentoo {
     private val apiClient: ApiClient = ApiClient(
@@ -42,6 +43,12 @@ object Gentoo {
     var logLevel: LogLevel
         get() = Logger.loggerLevel
         set(value) {
+            if (value == LogLevel.DEBUG) {
+                apiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+            } else {
+                apiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
+            }
+
             Logger.loggerLevel = value
         }
 

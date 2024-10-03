@@ -2,7 +2,7 @@ package com.waddle.gentoo.internal.api
 
 import com.waddle.gentoo.internal.api.response.ErrorResponse
 
-sealed class GentooResponse<out A> {
+internal sealed class GentooResponse<out A> {
     val success: A?
         get() = (this as? Success)?.value
 

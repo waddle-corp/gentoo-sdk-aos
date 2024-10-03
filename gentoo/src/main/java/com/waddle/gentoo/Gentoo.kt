@@ -138,7 +138,7 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    internal suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment { // TODO : cache
+    internal suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment {
         Logger.d("Gentoo.fetchFloatingComment(chatType: $chatType, itemId: $itemId)")
         val (params, authResponse) = awaitAuth()
         val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.randomId, chatType)

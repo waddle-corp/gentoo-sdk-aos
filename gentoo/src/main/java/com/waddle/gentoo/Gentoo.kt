@@ -5,10 +5,13 @@ import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.AuthRequest
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
 import com.waddle.gentoo.internal.api.request.FloatingProductRequest
+import com.waddle.gentoo.internal.api.request.UserEventCategory
+import com.waddle.gentoo.internal.api.request.UserEventRequest
 import com.waddle.gentoo.internal.api.response.AuthInfo
 import com.waddle.gentoo.internal.api.response.AuthResponse
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.api.response.FloatingProduct
+import com.waddle.gentoo.internal.api.response.UserEventResponse
 import com.waddle.gentoo.internal.exception.GentooException
 import com.waddle.gentoo.internal.util.urlEncoded
 import com.waddle.gentoo.ui.GentooFloatingActionButton
@@ -118,6 +121,26 @@ object Gentoo {
         return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingProduct.value
+        }
+    }
+
+    internal suspend fun sendUserEvent(
+        userEventCategory: UserEventCategory,
+        itemId: String? = null
+    ) {
+        val (_, authResponse) = awaitAuth()
+        val userEventRequest = UserEventRequest(
+            userEventCategory = userEventCategory,
+            userId = authResponse.randomId,
+            clientId = initializeParams.clientId,
+            itemId
+        )
+        return when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
+            is GentooResponse.Failure -> {
+            }
+            is GentooResponse.Success -> {
+
+            }
         }
     }
 

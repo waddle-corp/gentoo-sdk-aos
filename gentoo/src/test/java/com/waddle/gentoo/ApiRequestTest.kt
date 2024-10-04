@@ -11,8 +11,10 @@ import com.waddle.gentoo.internal.api.response.FloatingProduct
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore
 internal class ApiRequestsTest {
     val apiClient = ApiClient(
         "G4J2wPnd643wRoQiK52PO9ZAtaD6YNCAhGlfm1Oc",

@@ -76,6 +76,10 @@ afterEvaluate {
                 groupId = "com.github.waddle-corp"
                 artifactId = "gentoo"
                 version = "1.0.0-beta"
+
+                artifact(layout.buildDirectory.file("outputs/aar/gentoo-release.aar")) {
+                    classifier = "release"
+                }
             }
         }
     }

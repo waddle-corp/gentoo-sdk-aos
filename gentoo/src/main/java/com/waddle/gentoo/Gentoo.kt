@@ -25,8 +25,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 
 object Gentoo {
     private val apiClient: ApiClient = ApiClient(
-        BuildConfig.API_KEY,
-        BuildConfig.DAILY_SHOT_BASE_URL
+        Constants.API_KEY,
+        Constants.BASE_URL
     )
 
     private var _initializeParams: InitializeParams? = null

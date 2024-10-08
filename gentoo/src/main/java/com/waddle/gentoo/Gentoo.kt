@@ -13,6 +13,7 @@ import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.api.response.FloatingProduct
 import com.waddle.gentoo.internal.api.response.UserEventResponse
 import com.waddle.gentoo.internal.exception.GentooException
+import com.waddle.gentoo.internal.util.Constants
 import com.waddle.gentoo.internal.util.urlEncoded
 import com.waddle.gentoo.ui.GentooFloatingActionButton
 import com.waddle.gentoo.viewmodel.GentooViewModel
@@ -112,7 +113,7 @@ object Gentoo {
     ): String {
         Logger.d("Gentoo.getDetailChatUrl(itemId: $itemId, type: $type, comment: $comment)")
         val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.randomId
+        val userId = authResponse.body.randomId
         val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
@@ -126,7 +127,7 @@ object Gentoo {
     internal suspend fun getDefaultChatUrl(): String {
         Logger.d("Gentoo.getDefaultChatUrl()")
         val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.randomId
+        val userId = authResponse.body.randomId
         val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
@@ -141,7 +142,7 @@ object Gentoo {
     internal suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment {
         Logger.d("Gentoo.fetchFloatingComment(chatType: $chatType, itemId: $itemId)")
         val (params, authResponse) = awaitAuth()
-        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.randomId, chatType)
+        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.body.randomId, chatType)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingComment.value
@@ -152,7 +153,7 @@ object Gentoo {
     internal suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
         Logger.d("Gentoo.fetchFloatingProduct(itemId: $itemId, target: $target)")
         val (_, authResponse) = awaitAuth()
-        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.randomId, target)
+        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.body.randomId, target)
         return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingProduct.value
@@ -166,7 +167,7 @@ object Gentoo {
         val (_, authResponse) = awaitAuth()
         val userEventRequest = UserEventRequest(
             userEventCategory = userEventCategory,
-            userId = authResponse.randomId,
+            userId = authResponse.body.randomId,
             clientId = initializeParams.clientId,
             itemId
         )

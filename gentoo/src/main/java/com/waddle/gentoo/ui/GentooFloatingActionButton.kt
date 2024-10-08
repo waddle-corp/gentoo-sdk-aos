@@ -9,6 +9,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
 import androidx.core.view.updateLayoutParams
 import com.waddle.gentoo.FloatingActionButtonType
+import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.R
 import com.waddle.gentoo.databinding.ViewGentooFloatingActionButtonBinding
 import com.waddle.gentoo.internal.util.toDp
@@ -50,7 +51,7 @@ class GentooFloatingActionButton @JvmOverloads constructor(
         this.addView(binding.root)
 
         this.binding.root.setOnClickListener {
-            val url = this.chatUrl.takeIf { it.isNotEmpty() } ?: return@setOnClickListener
+            val url = this.chatUrl.takeIf { it.isNotEmpty() } ?: Gentoo.defaultChatUrl ?: return@setOnClickListener
             val type = when (val state = uiState) {
                 is GentooViewModel.UiState.Expanded -> state.type
                 is GentooViewModel.UiState.Collapsed -> state.type

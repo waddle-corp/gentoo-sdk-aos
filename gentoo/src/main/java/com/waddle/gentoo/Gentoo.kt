@@ -41,6 +41,8 @@ object Gentoo {
      */
     private var authJob: Deferred<AuthResponse>? = null
 
+        var defaultChatUrl: String? = null
+
     var logLevel: LogLevel
         get() = Logger.loggerLevel
         set(value) {
@@ -71,7 +73,9 @@ object Gentoo {
         this._initializeParams = params
         authJob = CoroutineScope(Dispatchers.IO).async {
             try {
-                authenticate(params.udid, params.authCode)
+                authenticate(params.udid, params.authCode).also {
+                    defaultChatUrl = getDefaultChatUrl(it.body.randomId, params)
+                }
             } catch (e: Exception) {
                 Logger.e("Gentoo.initialize() >> failed to authenticate(e: $e) ")
                 throw e
@@ -124,16 +128,17 @@ object Gentoo {
         }
     }
 
-    internal suspend fun getDefaultChatUrl(): String {
+    internal suspend fun getDefaultChatUrl(
+        userId: String,
+        params: InitializeParams
+    ): String {
         Logger.d("Gentoo.getDefaultChatUrl()")
-        val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.body.randomId
-        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
+        val hostUrl = if (params.clientId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/${userId.urlEncoded}?ch=true".also {
+        return "$hostUrl/${params.clientId.urlEncoded}/${userId.urlEncoded}?ch=true".also {
             Logger.d("Gentoo.getDefaultChatUrl() >> built chat url: $it")
         }
     }

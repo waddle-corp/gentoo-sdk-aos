@@ -65,7 +65,7 @@ class GentooDefaultViewModel : GentooViewModel() {
                 Logger.d("GentooDefaultViewModel.init() >> fetchFloatingComment result: $floatingComment")
                 _uiState.emit(UiState.Expanded(FloatingActionButtonType.DEFAULT, floatingComment.message))
                 Logger.i("GentooDefaultViewModel.init() >> change ui state to ${_uiState.value}")
-                _chatUrl.emit(Gentoo.getDefaultChatUrl())
+                Gentoo.defaultChatUrl?.let { _chatUrl.emit(it) }
                 Logger.d("GentooDefaultViewModel.init() >> chat url : ${_chatUrl.value}")
                 delay(AUTO_COLLAPSED_DELAY)
                 _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DEFAULT))

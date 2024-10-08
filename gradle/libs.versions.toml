@@ -14,6 +14,7 @@ activity = "1.8.0"
 constraintlayout = "2.1.4"
 annotation = "1.8.2"
 lifecycle-viewmodel-ktx = "2.8.6"
+gentoo = "1.0.0-beta.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -33,6 +34,7 @@ activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout"}
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel-ktx" }
+gentoo = { group = "com.github.waddle-corp", name = "gentoo-sdk-aos", version.ref = "gentoo" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

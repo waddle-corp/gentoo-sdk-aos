@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.constraintlayout)
     implementation(project(":gentoo"))
+//    implementation(libs.gentoo)
     implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)

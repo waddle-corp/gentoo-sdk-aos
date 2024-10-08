@@ -71,7 +71,7 @@ class GentooDefaultViewModel : GentooViewModel() {
                 _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DEFAULT))
                 Logger.i("GentooDefaultViewModel.init() >> change ui state to ${_uiState.value}")
             } catch (e: Exception) {
-                Logger.e("GentooDefaultViewModel.init() e: $e")
+                Logger.w("GentooDefaultViewModel.init() e: $e")
             }
         }
     }
@@ -125,7 +125,7 @@ class GentooDetailViewModel(
                 _uiState.emit(UiState.Collapsed(FloatingActionButtonType.DETAIL))
                 Logger.i("GentooDetailViewModel.updateFloatingComment() >> change ui state to ${_uiState.value}")
             } catch (e: Exception) {
-                Logger.e("GentooDetailViewModel.updateFloatingComment() e: $e")
+                Logger.w("GentooDetailViewModel.updateFloatingComment() e: $e")
             }
         }
     }

@@ -13,7 +13,7 @@ internal class UserEventRequest(
     private val userId: String,
     private val clientId: String,
     private val itemId: String? = null,
-    private val channelId: String = "mobile"
+    private val channelId: String = "Android"
 ) : PostRequest {
     override val url: String
         get() = Endpoints.USER_EVENT

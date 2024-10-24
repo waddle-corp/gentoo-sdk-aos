@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     api(libs.material)
     implementation(libs.annotation)
+    implementation(libs.glide)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.coroutine.test)

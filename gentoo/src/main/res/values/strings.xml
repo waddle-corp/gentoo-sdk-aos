@@ -4,4 +4,5 @@
     <string name="profile_sub_title">술 전문가</string>
     <string name="close_button">Close button</string>
     <string name="drag_handle">Drag handle</string>
+    <string name="gentoo_floating_button_description">Gentoo Floating Button</string>
 </resources>

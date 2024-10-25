@@ -41,7 +41,7 @@ object Gentoo {
      */
     private var authJob: Deferred<AuthResponse>? = null
 
-        var defaultChatUrl: String? = null
+    var defaultChatUrl: String? = null
 
     var logLevel: LogLevel
         get() = Logger.loggerLevel
@@ -107,6 +107,8 @@ object Gentoo {
             viewModel.markAsFloatingButtonClicked()
         }
         view.onViewRendered = { viewModel.markAsFloatingButtonRendered() }
+        view.onGifAnimationEnded = { viewModel.onGifAnimationEnded() }
+        view.onTextAnimationEnded = { viewModel.onTextAnimationEnded() }
     }
 
     @Throws(GentooException::class)

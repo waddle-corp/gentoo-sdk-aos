@@ -130,7 +130,7 @@ object Gentoo {
         }
     }
 
-    internal suspend fun getDefaultChatUrl(
+    internal fun getDefaultChatUrl(
         userId: String,
         params: InitializeParams
     ): String {

@@ -125,14 +125,14 @@ class GentooDetailViewModel(
         uiStateJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (!fromNeeds) {
-                    changeUiState(UiState.GifAnimating(FloatingActionButtonType.DEFAULT))
-                    currentChatType = ChatType.THIS
                     val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.THIS, itemId).also {
                         this@GentooDetailViewModel.thisFloatingComment = it
                     }
+                    currentChatType = ChatType.THIS
                     Logger.d("GentooDetailViewModel.updateFloatingComment() >> thisFloatingComment: $thisFloatingComment")
                     _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.THIS, thisFloatingComment.message))
                     Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
+                    changeUiState(UiState.GifAnimating(FloatingActionButtonType.DEFAULT))
                     waitForGifAnimation()
                     isTextAnimationEnded = false
                     changeUiState(UiState.Expanding(FloatingActionButtonType.DETAIL, thisFloatingComment.message))
@@ -144,9 +144,9 @@ class GentooDetailViewModel(
                 changeUiState(UiState.Collapsed(FloatingActionButtonType.DETAIL))
                 val deferred = async {
                     try {
-                        this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.NEEDS, itemId).also {
+                        (this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.NEEDS, itemId).also {
                             this@GentooDetailViewModel.needsFloatingComment = it
-                        }.also {
+                        }).also {
                             Logger.d("GentooDetailViewModel.updateFloatingComment() >> needsFloatingComment: $it")
                         }
                     } catch (e: Exception) {

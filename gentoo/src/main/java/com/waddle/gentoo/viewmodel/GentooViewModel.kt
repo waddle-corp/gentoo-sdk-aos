@@ -143,15 +143,20 @@ class GentooDetailViewModel(
 
                 changeUiState(UiState.Collapsed(FloatingActionButtonType.DETAIL))
                 val deferred = async {
-                    this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.NEEDS, itemId).also {
-                        this@GentooDetailViewModel.needsFloatingComment = it
-                    }.also {
-                        Logger.d("GentooDetailViewModel.updateFloatingComment() >> needsFloatingComment: $it")
+                    try {
+                        this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.NEEDS, itemId).also {
+                            this@GentooDetailViewModel.needsFloatingComment = it
+                        }.also {
+                            Logger.d("GentooDetailViewModel.updateFloatingComment() >> needsFloatingComment: $it")
+                        }
+                    } catch (e: Exception) {
+                        Logger.w("GentooDetailViewModel.updateFloatingComment() e: $e")
+                        null
                     }
                 }
                 delay(COMMENT_CHANGE_TO_NEEDS_DELAY)
                 currentChatType = ChatType.NEEDS
-                val needsFloatingComment = deferred.await()
+                val needsFloatingComment = deferred.await() ?: return@launch
                 _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.NEEDS,  needsFloatingComment.message))
                 Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
                 isTextAnimationEnded = false

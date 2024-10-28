@@ -178,13 +178,18 @@ object Gentoo {
             clientId = initializeParams.clientId,
             itemId
         )
-        return when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
-            is GentooResponse.Failure -> {
-                Logger.d("Failed to log user event. ${response.errorResponse}")
+
+        return try {
+            when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
+                is GentooResponse.Failure -> {
+                    Logger.d("Failed to log user event. ${response.errorResponse}")
+                }
+                is GentooResponse.Success -> {
+                    Logger.d("Succeeded to log user event. ${response.value.message}")
+                }
             }
-            is GentooResponse.Success -> {
-                Logger.d("Succeeded to log user event. ${response.value.message}")
-            }
+        } catch (e: GentooException) {
+            Logger.e("Failed to log user event by error. e: $e")
         }
     }
 

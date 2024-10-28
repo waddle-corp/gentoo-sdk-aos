@@ -58,6 +58,7 @@ internal class ApiClient(
                 throw GentooException(e)
             }
         } catch (e: Exception) {
+            Logger.e("Failed to send request: $request")
             throw GentooException(e)
         }
     }

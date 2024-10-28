@@ -32,7 +32,7 @@
         android:visibility="gone"
         android:clickable="false"
         android:maxLines="2"
-        android:maxWidth="250dp"
+        android:maxWidth="190dp"
         android:ellipsize="end"
         app:layout_constraintEnd_toStartOf="@id/gentooImageButton"
         app:layout_constraintBottom_toBottomOf="parent"

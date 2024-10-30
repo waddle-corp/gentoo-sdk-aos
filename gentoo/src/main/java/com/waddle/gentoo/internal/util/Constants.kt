@@ -16,4 +16,11 @@ internal object Constants {
         } else {
             "https://byg7k8r4gi.execute-api.ap-northeast-2.amazonaws.com/prod"
         }
+
+    val FAB_IMAGE_URL: String
+        get() = if (BuildConfig.DEBUG) {
+            "https://d32xcphivq9687.cloudfront.net/public/img/units/gentoo-anime-web-noloop.gif"
+        } else {
+            "https://d3qrvyizob9ouf.cloudfront.net/public/img/units/gentoo-anime-web-noloop.gif"
+        }
 }

@@ -41,7 +41,7 @@ object Gentoo {
      */
     private var authJob: Deferred<AuthResponse>? = null
 
-        var defaultChatUrl: String? = null
+    var defaultChatUrl: String? = null
 
     var logLevel: LogLevel
         get() = Logger.loggerLevel
@@ -107,6 +107,8 @@ object Gentoo {
             viewModel.markAsFloatingButtonClicked()
         }
         view.onViewRendered = { viewModel.markAsFloatingButtonRendered() }
+        view.onGifAnimationEnded = { viewModel.onGifAnimationEnded() }
+        view.onTextAnimationEnded = { viewModel.onTextAnimationEnded() }
     }
 
     @Throws(GentooException::class)
@@ -128,7 +130,7 @@ object Gentoo {
         }
     }
 
-    internal suspend fun getDefaultChatUrl(
+    internal fun getDefaultChatUrl(
         userId: String,
         params: InitializeParams
     ): String {
@@ -176,13 +178,18 @@ object Gentoo {
             clientId = initializeParams.clientId,
             itemId
         )
-        return when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
-            is GentooResponse.Failure -> {
-                Logger.d("Failed to log user event. ${response.errorResponse}")
+
+        return try {
+            when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
+                is GentooResponse.Failure -> {
+                    Logger.d("Failed to log user event. ${response.errorResponse}")
+                }
+                is GentooResponse.Success -> {
+                    Logger.d("Succeeded to log user event. ${response.value.message}")
+                }
             }
-            is GentooResponse.Success -> {
-                Logger.d("Succeeded to log user event. ${response.value.message}")
-            }
+        } catch (e: GentooException) {
+            Logger.e("Failed to log user event by error. e: $e")
         }
     }
 

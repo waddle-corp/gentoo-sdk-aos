@@ -4,6 +4,7 @@ import com.waddle.gentoo.internal.api.ApiClient
 import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.AuthRequest
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
+import com.waddle.gentoo.internal.api.request.FloatingData
 import com.waddle.gentoo.internal.api.request.FloatingProductRequest
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.request.UserEventRequest
@@ -114,18 +115,18 @@ object Gentoo {
     @Throws(GentooException::class)
     internal suspend fun getDetailChatUrl(
         itemId: String,
-        type: ChatType,
+        type: CommentType,
         comment: String
     ): String {
         Logger.d("Gentoo.getDetailChatUrl(itemId: $itemId, type: $type, comment: $comment)")
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.chatUserId
-        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
+        val hostUrl = if (initializeParams.partnerId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}".also {
+        return "$hostUrl/${initializeParams.partnerId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}".also {
             Logger.d("Gentoo.getDetailChatUrl() >> built chat url: $it")
         }
     }
@@ -135,35 +136,24 @@ object Gentoo {
         params: InitializeParams
     ): String {
         Logger.d("Gentoo.getDefaultChatUrl()")
-        val hostUrl = if (params.clientId == "dlst" && BuildConfig.DEBUG.not()) {
+        val hostUrl = if (params.partnerId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${params.clientId.urlEncoded}/${userId.urlEncoded}?ch=true".also {
+        return "$hostUrl/${params.partnerId.urlEncoded}/${userId.urlEncoded}?ch=true".also {
             Logger.d("Gentoo.getDefaultChatUrl() >> built chat url: $it")
         }
     }
 
     @Throws(GentooException::class)
-    internal suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment {
-        Logger.d("Gentoo.fetchFloatingComment(chatType: $chatType, itemId: $itemId)")
-        val (params, authResponse) = awaitAuth()
-        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.chatUserId, chatType)
+    internal suspend fun fetchFloatingComment(floatingData: FloatingData): FloatingComment {
+        Logger.d("Gentoo.fetchFloatingComment(floatingData: $floatingData)")
+        val params = this.initializeParams
+        val floatingCommentRequest = FloatingCommentRequest(params.partnerId, floatingData)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingComment.value
-        }
-    }
-
-    @Throws(GentooException::class)
-    internal suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
-        Logger.d("Gentoo.fetchFloatingProduct(itemId: $itemId, target: $target)")
-        val (_, authResponse) = awaitAuth()
-        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.chatUserId, target)
-        return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
-            is GentooResponse.Success -> floatingProduct.value
         }
     }
 
@@ -175,7 +165,7 @@ object Gentoo {
         val userEventRequest = UserEventRequest(
             userEventCategory = userEventCategory,
             userId = authResponse.chatUserId,
-            clientId = initializeParams.clientId,
+            clientId = initializeParams.partnerId,
             itemId
         )
 

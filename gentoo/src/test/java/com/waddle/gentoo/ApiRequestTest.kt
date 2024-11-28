@@ -6,13 +6,14 @@ import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
 import com.waddle.gentoo.internal.api.response.AuthResponse
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.api.GentooResponse
+import com.waddle.gentoo.internal.api.request.FloatingData
 import com.waddle.gentoo.internal.api.request.FloatingProductRequest
 import com.waddle.gentoo.internal.api.response.FloatingProduct
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Test
+import org.w3c.dom.Comment
 
 internal class ApiRequestsTest {
     val apiClient = ApiClient(
@@ -30,15 +31,16 @@ internal class ApiRequestsTest {
 
     @Test
     fun test_floatingCommentRequest() = runBlocking {
-        val authRequest = AuthRequest(testUdid, testAuthCode)
-        val userId = when (val response = apiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Success -> response.value.chatUserId
-            is GentooResponse.Failure -> fail("AuthRequest should not fail")
-        }
-
-        val floatingCommentRequest = FloatingCommentRequest("dlst", testItemId, userId, ChatType.DEFAULT)
+        val floatingCommentRequest = FloatingCommentRequest("6737041bcf517dbd2b8b6458", FloatingData.Home)
         val response = apiClient.send(floatingCommentRequest, FloatingComment.serializer())
         response.shouldBeTypeOf<GentooResponse.Success<FloatingComment>>()
+        println("response : $response")
+
+        val floatingCommentRequest2 = FloatingCommentRequest("6737041bcf517dbd2b8b6458", FloatingData.ProductDetail(testItemId, CommentType.THIS))
+        val response2 = apiClient.send(floatingCommentRequest2, FloatingComment.serializer())
+        println("response2 : $response2")
+        response.shouldBeTypeOf<GentooResponse.Success<FloatingComment>>()
+
         Unit
     }
 

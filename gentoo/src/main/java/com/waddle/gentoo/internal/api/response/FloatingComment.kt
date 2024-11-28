@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class FloatingComment(
-    val message: String,
-    val case: String
+    val imageUrl: String,
+    val comment: String
 )

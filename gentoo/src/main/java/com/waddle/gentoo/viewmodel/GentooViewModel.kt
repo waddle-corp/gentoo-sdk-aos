@@ -1,12 +1,12 @@
 package com.waddle.gentoo.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.waddle.gentoo.ChatType
+import com.waddle.gentoo.CommentType
 import com.waddle.gentoo.FloatingActionButtonType
 import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.Logger
+import com.waddle.gentoo.internal.api.request.FloatingData
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import kotlinx.coroutines.CoroutineScope
@@ -92,14 +92,14 @@ class GentooDefaultViewModel : GentooViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 changeUiState(UiState.GifAnimating(FloatingActionButtonType.DEFAULT))
-                val floatingComment = Gentoo.fetchFloatingComment(ChatType.DEFAULT, "default")
+                val floatingComment = Gentoo.fetchFloatingComment(FloatingData.Home)
                 Logger.d("GentooDefaultViewModel.init() >> fetchFloatingComment result: $floatingComment")
                 Gentoo.defaultChatUrl?.let { _chatUrl.emit(it) }
                 Logger.d("GentooDefaultViewModel.init() >> chat url : ${_chatUrl.value}")
                 waitForGifAnimation()
-                changeUiState(UiState.Expanding(FloatingActionButtonType.DEFAULT, floatingComment.message))
+                changeUiState(UiState.Expanding(FloatingActionButtonType.DEFAULT, floatingComment.comment))
                 waitForTextAnimation()
-                changeUiState(UiState.Expanded(FloatingActionButtonType.DEFAULT, floatingComment.message))
+                changeUiState(UiState.Expanded(FloatingActionButtonType.DEFAULT, floatingComment.comment))
                 delay(AUTO_COLLAPSED_DELAY)
                 changeUiState(UiState.Collapsed(FloatingActionButtonType.DEFAULT))
             } catch (e: Exception) {
@@ -113,7 +113,7 @@ class GentooDetailViewModel(
     override val itemId: String
 ) : GentooViewModel() {
     private var uiStateJob: Job? = null
-    private var currentChatType: ChatType = ChatType.DEFAULT
+    private var currentCommentType: CommentType = CommentType.DEFAULT
     private var thisFloatingComment: FloatingComment? = null
     private var needsFloatingComment: FloatingComment? = null
     init {
@@ -125,26 +125,26 @@ class GentooDetailViewModel(
         uiStateJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (!fromNeeds) {
-                    val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.THIS, itemId).also {
+                    val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(FloatingData.ProductDetail(itemId, CommentType.THIS)).also {
                         this@GentooDetailViewModel.thisFloatingComment = it
                     }
-                    currentChatType = ChatType.THIS
+                    currentCommentType = CommentType.THIS
                     Logger.d("GentooDetailViewModel.updateFloatingComment() >> thisFloatingComment: $thisFloatingComment")
-                    _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.THIS, thisFloatingComment.message))
+                    _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, CommentType.THIS, thisFloatingComment.comment))
                     Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
                     changeUiState(UiState.GifAnimating(FloatingActionButtonType.DEFAULT))
                     waitForGifAnimation()
                     isTextAnimationEnded = false
-                    changeUiState(UiState.Expanding(FloatingActionButtonType.DETAIL, thisFloatingComment.message))
+                    changeUiState(UiState.Expanding(FloatingActionButtonType.DETAIL, thisFloatingComment.comment))
                     waitForTextAnimation()
-                    changeUiState(UiState.Expanded(FloatingActionButtonType.DETAIL, thisFloatingComment.message))
+                    changeUiState(UiState.Expanded(FloatingActionButtonType.DETAIL, thisFloatingComment.comment))
                     delay(AUTO_COLLAPSED_DELAY)
                 }
 
                 changeUiState(UiState.Collapsed(FloatingActionButtonType.DETAIL))
                 val deferred = async {
                     try {
-                        (this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(ChatType.NEEDS, itemId).also {
+                        (this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(FloatingData.ProductDetail(itemId, CommentType.NEEDS)).also {
                             this@GentooDetailViewModel.needsFloatingComment = it
                         }).also {
                             Logger.d("GentooDetailViewModel.updateFloatingComment() >> needsFloatingComment: $it")
@@ -155,12 +155,12 @@ class GentooDetailViewModel(
                     }
                 }
                 delay(COMMENT_CHANGE_TO_NEEDS_DELAY)
-                currentChatType = ChatType.NEEDS
+                currentCommentType = CommentType.NEEDS
                 val needsFloatingComment = deferred.await() ?: return@launch
-                _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, ChatType.NEEDS,  needsFloatingComment.message))
+                _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, CommentType.NEEDS,  needsFloatingComment.comment))
                 Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
                 isTextAnimationEnded = false
-                changeUiState(UiState.Expanding(FloatingActionButtonType.DETAIL, needsFloatingComment.message))
+                changeUiState(UiState.Expanding(FloatingActionButtonType.DETAIL, needsFloatingComment.comment))
                 waitForTextAnimation()
                 delay(AUTO_COLLAPSED_DELAY)
                 changeUiState(UiState.Collapsed(FloatingActionButtonType.DETAIL))
@@ -176,7 +176,7 @@ class GentooDetailViewModel(
 
     override fun onBottomSheetDismissed() {
         uiStateJob?.cancel()
-        if (currentChatType == ChatType.THIS) {
+        if (currentCommentType == CommentType.THIS) {
             updateFloatingComment(true)
         } else {
             viewModelScope.launch {

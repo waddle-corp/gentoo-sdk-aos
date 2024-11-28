@@ -73,8 +73,8 @@ object Gentoo {
         this._initializeParams = params
         authJob = CoroutineScope(Dispatchers.IO).async {
             try {
-                authenticate(params.udid, params.authCode).also {
-                    defaultChatUrl = getDefaultChatUrl(it.body.randomId, params)
+                authenticate(params.udid, params.userToken).also {
+                    defaultChatUrl = getDefaultChatUrl(it.chatUserId, params)
                 }
             } catch (e: Exception) {
                 Logger.e("Gentoo.initialize() >> failed to authenticate(e: $e) ")
@@ -119,7 +119,7 @@ object Gentoo {
     ): String {
         Logger.d("Gentoo.getDetailChatUrl(itemId: $itemId, type: $type, comment: $comment)")
         val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.body.randomId
+        val userId = authResponse.chatUserId
         val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
@@ -149,7 +149,7 @@ object Gentoo {
     internal suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment {
         Logger.d("Gentoo.fetchFloatingComment(chatType: $chatType, itemId: $itemId)")
         val (params, authResponse) = awaitAuth()
-        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.body.randomId, chatType)
+        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.chatUserId, chatType)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingComment.value
@@ -160,7 +160,7 @@ object Gentoo {
     internal suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
         Logger.d("Gentoo.fetchFloatingProduct(itemId: $itemId, target: $target)")
         val (_, authResponse) = awaitAuth()
-        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.body.randomId, target)
+        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.chatUserId, target)
         return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingProduct.value
@@ -174,7 +174,7 @@ object Gentoo {
         val (_, authResponse) = awaitAuth()
         val userEventRequest = UserEventRequest(
             userEventCategory = userEventCategory,
-            userId = authResponse.body.randomId,
+            userId = authResponse.chatUserId,
             clientId = initializeParams.clientId,
             itemId
         )
@@ -200,19 +200,19 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    private suspend fun authenticate(udid: String, authCode: String): AuthResponse {
+    private suspend fun authenticate(udid: String, userToken: String): AuthResponse {
         Logger.d("Gentoo.authenticate(udid: $udid)")
         // if there is same auth info with given userDeviceId and authCode, early return cached AuthResponse
         this.authInfo?.let {
             Logger.d("Gentoo.authenticate() >> already authenticated with udid($udid)")
-            if (it.udid == udid && it.authCode == authCode) return it.authResponse
+            if (it.udid == udid && it.userToken == userToken) return it.authResponse
         }
 
-        val authRequest = AuthRequest(udid, authCode)
+        val authRequest = AuthRequest(udid, userToken)
         return when (val authResponse = apiClient.send(authRequest, AuthResponse.serializer())) {
             is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> {
-                this.authInfo = AuthInfo(udid, authCode, authResponse.value)
+                this.authInfo = AuthInfo(udid, userToken, authResponse.value)
                 authResponse.value
             }
         }

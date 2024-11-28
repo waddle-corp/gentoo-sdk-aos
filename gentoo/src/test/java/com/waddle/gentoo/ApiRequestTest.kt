@@ -14,11 +14,10 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Test
 
-@Ignore
 internal class ApiRequestsTest {
     val apiClient = ApiClient(
         "G4J2wPnd643wRoQiK52PO9ZAtaD6YNCAhGlfm1Oc",
-        "https://hg5eey52l4.execute-api.ap-northeast-2.amazonaws.com/dev"
+        "https://8krjc3tlhc.execute-api.ap-northeast-2.amazonaws.com/chat"
     )
 
     @Test
@@ -33,7 +32,7 @@ internal class ApiRequestsTest {
     fun test_floatingCommentRequest() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val userId = when (val response = apiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Success -> response.value.randomId
+            is GentooResponse.Success -> response.value.chatUserId
             is GentooResponse.Failure -> fail("AuthRequest should not fail")
         }
 
@@ -47,7 +46,7 @@ internal class ApiRequestsTest {
     fun test_floatingProductRequest() = runBlocking {
         val authRequest = AuthRequest(testUdid, testAuthCode)
         val userId = when (val response = apiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Success -> response.value.randomId
+            is GentooResponse.Success -> response.value.chatUserId
             is GentooResponse.Failure -> fail("AuthRequest should not fail")
         }
 

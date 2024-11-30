@@ -110,6 +110,7 @@ object Gentoo {
         view.onViewRendered = { viewModel.markAsFloatingButtonRendered() }
         view.onGifAnimationEnded = { viewModel.onGifAnimationEnded() }
         view.onTextAnimationEnded = { viewModel.onTextAnimationEnded() }
+        viewModel.showFloatingButtonComment()
     }
 
     @Throws(GentooException::class)

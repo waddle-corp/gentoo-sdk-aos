@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import com.waddle.gentoo.FloatingActionButtonType
+import com.waddle.gentoo.DisplayLocation
 import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.databinding.ViewGentooFloatingActionButtonBinding
 import com.waddle.gentoo.internal.util.Constants
@@ -68,23 +68,25 @@ class GentooFloatingActionButton @JvmOverloads constructor(
         this.binding.root.setOnClickListener {
             val url = this.chatUrl.takeIf { it.isNotEmpty() } ?: Gentoo.defaultChatUrl ?: return@setOnClickListener
             val type = when (val state = uiState) {
-                is GentooViewModel.UiState.GifAnimating -> state.type
-                is GentooViewModel.UiState.Expanding -> state.type
-                is GentooViewModel.UiState.Expanded -> state.type
-                is GentooViewModel.UiState.Collapsed -> state.type
+                is GentooViewModel.UiState.GifAnimating -> state.displayLocation
+                is GentooViewModel.UiState.Expanding -> state.displayLocation
+                is GentooViewModel.UiState.Expanded -> state.displayLocation
+                is GentooViewModel.UiState.Collapsed ->state.displayLocation
                 else -> return@setOnClickListener
             }
 
             onClick?.invoke()
             when (type) {
-                FloatingActionButtonType.DEFAULT -> {
+                DisplayLocation.HOME -> {
                     val intent = Intent(context, GentooChatActivity::class.java)
                     intent.putExtra(GentooChatActivity.INTENT_CHAT_URL, url)
                     context.startActivity(intent)
                 }
-                FloatingActionButtonType.DETAIL -> {
+                DisplayLocation.PRODUCT_DETAIL -> {
                     GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
+
+                DisplayLocation.PRODUCT_LIST -> {} // TODO
             }
         }
 

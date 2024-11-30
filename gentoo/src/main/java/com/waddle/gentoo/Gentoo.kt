@@ -183,7 +183,7 @@ object Gentoo {
         }
     }
 
-    private suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {
+    internal suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {
         val initializeParams = this.initializeParams
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
         return initializeParams to authResponse

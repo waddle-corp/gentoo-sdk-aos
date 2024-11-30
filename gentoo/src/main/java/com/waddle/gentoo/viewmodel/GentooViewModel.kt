@@ -11,31 +11,57 @@ import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-sealed class GentooViewModel : ViewModel() {
+sealed class GentooViewModel(
+    private val displayLocation: DisplayLocation,
+    private val floatingData: FloatingData
+) : ViewModel() {
     abstract val itemId: String?
-    protected val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Invisible)
+
+    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Invisible)
     val uiState: StateFlow<UiState> = _uiState
 
-    protected val _chatUrl: MutableStateFlow<String> = MutableStateFlow("")
+    private val _chatUrl: MutableStateFlow<String> = MutableStateFlow("")
     val chatUrl: StateFlow<String> = _chatUrl
 
-    protected var isGifAnimationEnded: Boolean = false
-    protected var isTextAnimationEnded: Boolean = false
+    private var isGifAnimationEnded: Boolean = false
+    private var isTextAnimationEnded: Boolean = false
 
-    suspend fun changeUiState(uiState: UiState) {
+    private suspend fun changeUiState(uiState: UiState) {
         Logger.i("${this::class.simpleName}.changeUiState() ${_uiState.value} >> $uiState ")
         _uiState.emit(uiState)
     }
 
+    internal abstract suspend fun getChatUrl(floatingComment: FloatingComment): String
+
     open fun onBottomSheetDismissed() {}
 
     open fun onClicked() {}
+
+    fun showFloatingButtonComment() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                changeUiState(UiState.GifAnimating(displayLocation))
+                val floatingComment = Gentoo.fetchFloatingComment(floatingData)
+                Logger.d("GentooViewModel($displayLocation).showFloatingButtonComment() >> fetchFloatingComment result: $floatingComment")
+                val chatUrl = getChatUrl(floatingComment)
+                _chatUrl.emit(chatUrl)
+                Logger.d("GentooViewModel($displayLocation).showFloatingButtonComment() >> chat url : $chatUrl")
+                waitForGifAnimation()
+                changeUiState(UiState.Expanding(displayLocation, floatingComment.comment))
+                waitForTextAnimation()
+                changeUiState(UiState.Expanded(displayLocation, floatingComment.comment))
+                delay(AUTO_COLLAPSED_DELAY)
+                changeUiState(UiState.Collapsed(displayLocation))
+            } catch (e: Exception) {
+                Logger.w("GentooViewModel($displayLocation).showFloatingButtonComment() e: $e")
+            }
+        }
+    }
 
     fun onGifAnimationEnded() {
         isGifAnimationEnded = true
@@ -57,13 +83,13 @@ sealed class GentooViewModel : ViewModel() {
         }
     }
 
-    protected suspend fun waitForGifAnimation() {
+    private suspend fun waitForGifAnimation() {
         while (!isGifAnimationEnded) {
             delay(20)
         }
     }
 
-    protected suspend fun waitForTextAnimation() {
+    private suspend fun waitForTextAnimation() {
         while (!isTextAnimationEnded) {
             delay(20)
         }
@@ -82,67 +108,39 @@ sealed class GentooViewModel : ViewModel() {
     }
 }
 
-class GentooHomeViewModel : GentooViewModel() {
+class GentooHomeViewModel : GentooViewModel(
+    DisplayLocation.HOME,
+    FloatingData.Home
+) {
     override val itemId: String?
         get() = null
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                changeUiState(UiState.GifAnimating(DisplayLocation.HOME))
-                val floatingComment = Gentoo.fetchFloatingComment(FloatingData.Home)
-                Logger.d("GentooDefaultViewModel.init() >> fetchFloatingComment result: $floatingComment")
-                Gentoo.defaultChatUrl?.let { _chatUrl.emit(it) }
-                Logger.d("GentooDefaultViewModel.init() >> chat url : ${_chatUrl.value}")
-                waitForGifAnimation()
-                changeUiState(UiState.Expanding(DisplayLocation.HOME, floatingComment.comment))
-                waitForTextAnimation()
-                changeUiState(UiState.Expanded(DisplayLocation.HOME, floatingComment.comment))
-                delay(AUTO_COLLAPSED_DELAY)
-                changeUiState(UiState.Collapsed(DisplayLocation.HOME))
-            } catch (e: Exception) {
-                Logger.w("GentooDefaultViewModel.init() e: $e")
-            }
-        }
+    override suspend fun getChatUrl(floatingComment: FloatingComment): String {
+        val (params, authResponse) = Gentoo.awaitAuth()
+        return Gentoo.getDefaultChatUrl(authResponse.chatUserId, params)
+    }
+}
+
+
+class GentooProductListViewModel : GentooViewModel(
+    DisplayLocation.PRODUCT_LIST,
+    FloatingData.ProductList
+) {
+    override val itemId: String?
+        get() = null
+
+    override suspend fun getChatUrl(floatingComment: FloatingComment): String {
+        TODO()
     }
 }
 
 class GentooDetailViewModel(
     override val itemId: String
-) : GentooViewModel() {
-    private var uiStateJob: Job? = null
-    private var currentCommentType: CommentType = CommentType.DEFAULT
-    private var thisFloatingComment: FloatingComment? = null
-    init {
-        updateFloatingComment()
-    }
-
-    private fun updateFloatingComment() {
-        Logger.i("GentooDetailViewModel.updateFloatingComment()")
-        uiStateJob = viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(FloatingData.ProductDetail(itemId, CommentType.THIS)).also {
-                    this@GentooDetailViewModel.thisFloatingComment = it
-                }
-                currentCommentType = CommentType.THIS
-                Logger.d("GentooDetailViewModel.updateFloatingComment() >> thisFloatingComment: $thisFloatingComment")
-                _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, CommentType.THIS, thisFloatingComment.comment))
-                Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
-                changeUiState(UiState.GifAnimating(DisplayLocation.PRODUCT_DETAIL))
-                waitForGifAnimation()
-                isTextAnimationEnded = false
-                changeUiState(UiState.Expanding(DisplayLocation.PRODUCT_DETAIL, thisFloatingComment.comment))
-                waitForTextAnimation()
-                changeUiState(UiState.Expanded(DisplayLocation.PRODUCT_DETAIL, thisFloatingComment.comment))
-                delay(AUTO_COLLAPSED_DELAY)
-                changeUiState(UiState.Collapsed(DisplayLocation.PRODUCT_DETAIL))
-            } catch (e: Exception) {
-                Logger.w("GentooDetailViewModel.updateFloatingComment() e: $e")
-            }
-        }
-    }
-
-    override fun onClicked() {
-        uiStateJob?.cancel()
+) : GentooViewModel(
+    DisplayLocation.PRODUCT_DETAIL,
+    FloatingData.ProductDetail(itemId, CommentType.THIS)
+) {
+    override suspend fun getChatUrl(floatingComment: FloatingComment): String {
+        return Gentoo.getDetailChatUrl(itemId, CommentType.THIS, floatingComment.comment)
     }
 }

@@ -80,7 +80,6 @@ sealed class GentooViewModel : ViewModel() {
 
     companion object {
         internal const val AUTO_COLLAPSED_DELAY = 3000L
-        internal const val COMMENT_CHANGE_TO_NEEDS_DELAY = 10000L
     }
 }
 
@@ -115,53 +114,27 @@ class GentooDetailViewModel(
     private var uiStateJob: Job? = null
     private var currentCommentType: CommentType = CommentType.DEFAULT
     private var thisFloatingComment: FloatingComment? = null
-    private var needsFloatingComment: FloatingComment? = null
     init {
-        updateFloatingComment(false)
+        updateFloatingComment()
     }
 
-    private fun updateFloatingComment(fromNeeds: Boolean) {
-        Logger.i("GentooDetailViewModel.updateFloatingComment(fromNeeds: $fromNeeds)")
+    private fun updateFloatingComment() {
+        Logger.i("GentooDetailViewModel.updateFloatingComment()")
         uiStateJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                if (!fromNeeds) {
-                    val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(FloatingData.ProductDetail(itemId, CommentType.THIS)).also {
-                        this@GentooDetailViewModel.thisFloatingComment = it
-                    }
-                    currentCommentType = CommentType.THIS
-                    Logger.d("GentooDetailViewModel.updateFloatingComment() >> thisFloatingComment: $thisFloatingComment")
-                    _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, CommentType.THIS, thisFloatingComment.comment))
-                    Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
-                    changeUiState(UiState.GifAnimating(DisplayLocation.PRODUCT_DETAIL))
-                    waitForGifAnimation()
-                    isTextAnimationEnded = false
-                    changeUiState(UiState.Expanding(DisplayLocation.PRODUCT_DETAIL, thisFloatingComment.comment))
-                    waitForTextAnimation()
-                    changeUiState(UiState.Expanded(DisplayLocation.PRODUCT_DETAIL, thisFloatingComment.comment))
-                    delay(AUTO_COLLAPSED_DELAY)
+                val thisFloatingComment = thisFloatingComment ?: Gentoo.fetchFloatingComment(FloatingData.ProductDetail(itemId, CommentType.THIS)).also {
+                    this@GentooDetailViewModel.thisFloatingComment = it
                 }
-
-                changeUiState(UiState.Collapsed(DisplayLocation.PRODUCT_DETAIL))
-                val deferred = async {
-                    try {
-                        (this@GentooDetailViewModel.needsFloatingComment ?: Gentoo.fetchFloatingComment(FloatingData.ProductDetail(itemId, CommentType.NEEDS)).also {
-                            this@GentooDetailViewModel.needsFloatingComment = it
-                        }).also {
-                            Logger.d("GentooDetailViewModel.updateFloatingComment() >> needsFloatingComment: $it")
-                        }
-                    } catch (e: Exception) {
-                        Logger.w("GentooDetailViewModel.updateFloatingComment() e: $e")
-                        null
-                    }
-                }
-                delay(COMMENT_CHANGE_TO_NEEDS_DELAY)
-                currentCommentType = CommentType.NEEDS
-                val needsFloatingComment = deferred.await() ?: return@launch
-                _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, CommentType.NEEDS,  needsFloatingComment.comment))
+                currentCommentType = CommentType.THIS
+                Logger.d("GentooDetailViewModel.updateFloatingComment() >> thisFloatingComment: $thisFloatingComment")
+                _chatUrl.emit(Gentoo.getDetailChatUrl(itemId, CommentType.THIS, thisFloatingComment.comment))
                 Logger.d("GentooDetailViewModel.updateFloatingComment() >> chat url : ${_chatUrl.value}")
+                changeUiState(UiState.GifAnimating(DisplayLocation.PRODUCT_DETAIL))
+                waitForGifAnimation()
                 isTextAnimationEnded = false
-                changeUiState(UiState.Expanding(DisplayLocation.PRODUCT_DETAIL, needsFloatingComment.comment))
+                changeUiState(UiState.Expanding(DisplayLocation.PRODUCT_DETAIL, thisFloatingComment.comment))
                 waitForTextAnimation()
+                changeUiState(UiState.Expanded(DisplayLocation.PRODUCT_DETAIL, thisFloatingComment.comment))
                 delay(AUTO_COLLAPSED_DELAY)
                 changeUiState(UiState.Collapsed(DisplayLocation.PRODUCT_DETAIL))
             } catch (e: Exception) {
@@ -172,17 +145,5 @@ class GentooDetailViewModel(
 
     override fun onClicked() {
         uiStateJob?.cancel()
-    }
-
-    override fun onBottomSheetDismissed() {
-        uiStateJob?.cancel()
-        if (currentCommentType == CommentType.THIS) {
-            updateFloatingComment(true)
-        } else {
-            viewModelScope.launch {
-                _uiState.emit(UiState.Collapsed(DisplayLocation.PRODUCT_DETAIL))
-                Logger.i("GentooDetailViewModel.updateFloatingComment() >> change ui state to ${_uiState.value}")
-            }
-        }
     }
 }

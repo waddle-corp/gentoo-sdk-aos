@@ -82,7 +82,7 @@ sealed class GentooViewModel : ViewModel() {
     }
 }
 
-class GentooDefaultViewModel : GentooViewModel() {
+class GentooHomeViewModel : GentooViewModel() {
     override val itemId: String?
         get() = null
 

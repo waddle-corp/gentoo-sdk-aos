@@ -5,13 +5,11 @@ import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.AuthRequest
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
 import com.waddle.gentoo.internal.api.request.FloatingData
-import com.waddle.gentoo.internal.api.request.FloatingProductRequest
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.request.UserEventRequest
 import com.waddle.gentoo.internal.api.response.AuthInfo
 import com.waddle.gentoo.internal.api.response.AuthResponse
 import com.waddle.gentoo.internal.api.response.FloatingComment
-import com.waddle.gentoo.internal.api.response.FloatingProduct
 import com.waddle.gentoo.internal.api.response.UserEventResponse
 import com.waddle.gentoo.internal.exception.GentooException
 import com.waddle.gentoo.internal.util.Constants
@@ -41,8 +39,6 @@ object Gentoo {
      * If it is not null, it means SDK has not been initialized yet.
      */
     private var authJob: Deferred<AuthResponse>? = null
-
-    var defaultChatUrl: String? = null
 
     var logLevel: LogLevel
         get() = Logger.loggerLevel
@@ -74,9 +70,7 @@ object Gentoo {
         this._initializeParams = params
         authJob = CoroutineScope(Dispatchers.IO).async {
             try {
-                authenticate(params.udid, params.userToken).also {
-                    defaultChatUrl = getDefaultChatUrl(it.chatUserId, params)
-                }
+                authenticate(params.udid, params.userToken)
             } catch (e: Exception) {
                 Logger.e("Gentoo.initialize() >> failed to authenticate(e: $e) ")
                 throw e
@@ -122,27 +116,25 @@ object Gentoo {
         Logger.d("Gentoo.getDetailChatUrl(itemId: $itemId, type: $type, comment: $comment)")
         val (initializeParams, authResponse) = awaitAuth()
         val userId = authResponse.chatUserId
-        val hostUrl = if (initializeParams.partnerId == "dlst" && BuildConfig.DEBUG.not()) {
+        val hostUrl = if (BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${initializeParams.partnerId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}".also {
+        return "$hostUrl/chatroute/gentoo?ptid=${initializeParams.partnerId.urlEncoded}&cuid=${userId.urlEncoded}&i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}".also {
             Logger.d("Gentoo.getDetailChatUrl() >> built chat url: $it")
         }
     }
 
-    internal fun getDefaultChatUrl(
-        userId: String,
-        params: InitializeParams
-    ): String {
+    internal suspend fun getDefaultChatUrl(): String {
         Logger.d("Gentoo.getDefaultChatUrl()")
-        val hostUrl = if (params.partnerId == "dlst" && BuildConfig.DEBUG.not()) {
+        val (initializeParams, authResponse) = awaitAuth()
+        val hostUrl = if (BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${params.partnerId.urlEncoded}/${userId.urlEncoded}?ch=true".also {
+        return "$hostUrl/chatroute/gentoo?ptid=${initializeParams.partnerId.urlEncoded}&cuid=${authResponse.chatUserId.urlEncoded}&ch=true".also {
             Logger.d("Gentoo.getDefaultChatUrl() >> built chat url: $it")
         }
     }

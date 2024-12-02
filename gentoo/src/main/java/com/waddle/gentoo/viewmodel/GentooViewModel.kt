@@ -116,8 +116,7 @@ class GentooHomeViewModel : GentooViewModel(
         get() = null
 
     override suspend fun getChatUrl(floatingComment: FloatingComment): String {
-        val (params, authResponse) = Gentoo.awaitAuth()
-        return Gentoo.getDefaultChatUrl(authResponse.chatUserId, params)
+        return Gentoo.getDefaultChatUrl()
     }
 }
 
@@ -130,7 +129,7 @@ class GentooProductListViewModel : GentooViewModel(
         get() = null
 
     override suspend fun getChatUrl(floatingComment: FloatingComment): String {
-        TODO()
+        return Gentoo.getDefaultChatUrl()
     }
 }
 

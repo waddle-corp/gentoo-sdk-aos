@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.waddle.gentoo.DisplayLocation
 import com.waddle.gentoo.Gentoo
+import com.waddle.gentoo.Logger
 import com.waddle.gentoo.databinding.ViewGentooFloatingActionButtonBinding
 import com.waddle.gentoo.internal.util.Constants
 import com.waddle.gentoo.internal.util.loadGif
@@ -36,6 +37,7 @@ class GentooFloatingActionButton @JvmOverloads constructor(
     internal var chatUrl: String = ""
     var uiState: GentooViewModel.UiState = GentooViewModel.UiState.Invisible
         set(value) {
+            Logger.d("uiState updated [$field] >> [$value]")
             field = value
             when (value) {
                 is GentooViewModel.UiState.Collapsed -> {

@@ -12,8 +12,8 @@ class BaseApplication : Application() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         Gentoo.initialize(
             InitializeParams(
-                clientId = "dlst",
-                authCode = "test",
+                partnerId = "6737041bcf517dbd2b8b6458",
+                userToken = "test",
                 udid = "test"
             )
         )

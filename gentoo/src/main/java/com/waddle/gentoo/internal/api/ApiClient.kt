@@ -22,7 +22,6 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 internal class ApiClient(
-    private val apiKey: String,
     private val baseUrl: String
 ) {
     val httpLoggingInterceptor: HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
@@ -65,10 +64,6 @@ internal class ApiClient(
 
     private fun ApiRequest.toRequest(): Request {
         val request = Request.Builder()
-
-        if (this.isApiKeyRequired) {
-            request.addHeader("x-api-key", apiKey)
-        }
 
         this.headers.forEach {
             request.addHeader(it.key, it.value)

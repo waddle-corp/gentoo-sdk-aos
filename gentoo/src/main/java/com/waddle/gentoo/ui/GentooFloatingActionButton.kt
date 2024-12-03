@@ -32,11 +32,18 @@ class GentooFloatingActionButton @JvmOverloads constructor(
     var onViewRendered: () -> Unit = {}
     var onGifAnimationEnded: () -> Unit = {}
     var onTextAnimationEnded: () -> Unit = {}
+    var beenViewRendered: Boolean = false
 
     internal var chatUrl: String = ""
     var uiState: GentooViewModel.UiState = GentooViewModel.UiState.Invisible
         set(value) {
             Logger.d("uiState updated [$field] >> [$value]")
+
+            if (!beenViewRendered && !field.isVisible && value.isVisible) {
+                beenViewRendered = true
+                onViewRendered()
+            }
+
             field = value
             when (value) {
                 is GentooViewModel.UiState.Collapsed -> {
@@ -90,15 +97,6 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                 DisplayLocation.PRODUCT_LIST -> {} // TODO
             }
         }
-
-        this.binding.root.viewTreeObserver.addOnGlobalLayoutListener(
-            object : OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    onViewRendered()
-                }
-            }
-        )
     }
 
     private fun startGifAnimation(

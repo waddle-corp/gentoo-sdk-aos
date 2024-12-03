@@ -20,7 +20,7 @@ internal class FloatingCommentRequest(
                     is FloatingCommentData.Home -> {}
                     is FloatingCommentData.ProductList -> {}
                     is FloatingCommentData.ProductDetail -> {
-                        this["itemId"] = floatingCommentData.itemId
+                        floatingCommentData.itemId?.let { this["itemId"] = it }
                         this["commentType"] = floatingCommentData.commentType.asString
                     }
                 }
@@ -40,7 +40,7 @@ internal sealed class FloatingCommentData {
             get() = DisplayLocation.PRODUCT_LIST
     }
 
-    internal data class ProductDetail(val itemId: String, val commentType: CommentType): FloatingCommentData() {
+    internal data class ProductDetail(val itemId: String?, val commentType: CommentType): FloatingCommentData() {
         override val displayLocation: DisplayLocation
             get() = DisplayLocation.PRODUCT_DETAIL
     }

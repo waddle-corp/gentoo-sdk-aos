@@ -3,8 +3,8 @@ package com.waddle.gentoo
 import com.waddle.gentoo.internal.api.ApiClient
 import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.AuthRequest
+import com.waddle.gentoo.internal.api.request.FloatingCommentData
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
-import com.waddle.gentoo.internal.api.request.FloatingData
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.request.UserEventRequest
 import com.waddle.gentoo.internal.api.response.AuthInfo
@@ -105,25 +105,6 @@ object Gentoo {
         view.onGifAnimationEnded = { viewModel.onGifAnimationEnded() }
         view.onTextAnimationEnded = { viewModel.onTextAnimationEnded() }
         viewModel.showFloatingButtonComment()
-    }
-
-    @Throws(GentooException::class)
-    internal suspend fun getDetailChatUrl(
-        itemId: String,
-        type: CommentType,
-        comment: String
-    ): String {
-        Logger.d("Gentoo.getDetailChatUrl(itemId: $itemId, type: $type, comment: $comment)")
-        val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.chatUserId
-        val hostUrl = if (BuildConfig.DEBUG.not()) {
-            "https://demo.gentooai.com"
-        } else {
-            "https://dev-demo.gentooai.com"
-        }
-        return "$hostUrl/chatroute/gentoo?ptid=${initializeParams.partnerId.urlEncoded}&cuid=${userId.urlEncoded}&i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}".also {
-            Logger.d("Gentoo.getDetailChatUrl() >> built chat url: $it")
-        }
     }
 
     internal suspend fun getDefaultChatUrl(): String {

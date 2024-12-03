@@ -68,7 +68,7 @@ class GentooFloatingActionButton @JvmOverloads constructor(
         this.addView(binding.root)
 
         this.binding.root.setOnClickListener {
-            val url = this.chatUrl.takeIf { it.isNotEmpty() } ?: Gentoo.defaultChatUrl ?: return@setOnClickListener
+            val url = this.chatUrl.takeIf { it.isNotEmpty() } ?: return@setOnClickListener
             val type = when (val state = uiState) {
                 is GentooViewModel.UiState.GifAnimating -> state.displayLocation
                 is GentooViewModel.UiState.Expanding -> state.displayLocation

@@ -134,12 +134,12 @@ class GentooProductListViewModel : GentooViewModel(
 }
 
 class GentooDetailViewModel(
-    override val itemId: String
+    override val itemId: String?
 ) : GentooViewModel(
     DisplayLocation.PRODUCT_DETAIL,
     FloatingCommentData.ProductDetail(itemId, CommentType.THIS)
 ) {
     override suspend fun getChatUrl(floatingComment: FloatingComment): String {
-        return Gentoo.getDetailChatUrl(itemId, CommentType.THIS, floatingComment.comment)
+        return Gentoo.getDefaultChatUrl()
     }
 }

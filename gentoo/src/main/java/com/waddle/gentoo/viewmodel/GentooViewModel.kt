@@ -6,7 +6,7 @@ import com.waddle.gentoo.CommentType
 import com.waddle.gentoo.DisplayLocation
 import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.Logger
-import com.waddle.gentoo.internal.api.request.FloatingData
+import com.waddle.gentoo.internal.api.request.FloatingCommentData
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 sealed class GentooViewModel(
     private val displayLocation: DisplayLocation,
-    private val floatingData: FloatingData
+    private val floatingCommentData: FloatingCommentData
 ) : ViewModel() {
     abstract val itemId: String?
 
@@ -46,7 +46,7 @@ sealed class GentooViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 changeUiState(UiState.GifAnimating(displayLocation))
-                val floatingComment = Gentoo.fetchFloatingComment(floatingData)
+                val floatingComment = Gentoo.fetchFloatingComment(floatingCommentData)
                 Logger.d("GentooViewModel($displayLocation).showFloatingButtonComment() >> fetchFloatingComment result: $floatingComment")
                 val chatUrl = getChatUrl(floatingComment)
                 _chatUrl.emit(chatUrl)
@@ -110,7 +110,7 @@ sealed class GentooViewModel(
 
 class GentooHomeViewModel : GentooViewModel(
     DisplayLocation.HOME,
-    FloatingData.Home
+    FloatingCommentData.Home
 ) {
     override val itemId: String?
         get() = null
@@ -123,7 +123,7 @@ class GentooHomeViewModel : GentooViewModel(
 
 class GentooProductListViewModel : GentooViewModel(
     DisplayLocation.PRODUCT_LIST,
-    FloatingData.ProductList
+    FloatingCommentData.ProductList
 ) {
     override val itemId: String?
         get() = null
@@ -137,7 +137,7 @@ class GentooDetailViewModel(
     override val itemId: String
 ) : GentooViewModel(
     DisplayLocation.PRODUCT_DETAIL,
-    FloatingData.ProductDetail(itemId, CommentType.THIS)
+    FloatingCommentData.ProductDetail(itemId, CommentType.THIS)
 ) {
     override suspend fun getChatUrl(floatingComment: FloatingComment): String {
         return Gentoo.getDetailChatUrl(itemId, CommentType.THIS, floatingComment.comment)

@@ -140,10 +140,10 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    internal suspend fun fetchFloatingComment(floatingData: FloatingData): FloatingComment {
-        Logger.d("Gentoo.fetchFloatingComment(floatingData: $floatingData)")
+    internal suspend fun fetchFloatingComment(floatingCommentData: FloatingCommentData): FloatingComment {
+        Logger.d("Gentoo.fetchFloatingComment(floatingData: $floatingCommentData)")
         val params = this.initializeParams
-        val floatingCommentRequest = FloatingCommentRequest(params.partnerId, floatingData)
+        val floatingCommentRequest = FloatingCommentRequest(params.partnerId, floatingCommentData)
         return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingComment.value

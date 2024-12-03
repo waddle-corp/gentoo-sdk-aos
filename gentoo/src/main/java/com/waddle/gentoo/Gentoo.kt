@@ -5,6 +5,7 @@ import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.AuthRequest
 import com.waddle.gentoo.internal.api.request.FloatingCommentData
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
+import com.waddle.gentoo.internal.api.request.UserEvent
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.request.UserEventRequest
 import com.waddle.gentoo.internal.api.response.AuthInfo
@@ -24,10 +25,8 @@ import kotlinx.coroutines.launch
 import okhttp3.logging.HttpLoggingInterceptor
 
 object Gentoo {
-    private val apiClient: ApiClient = ApiClient(
-        Constants.API_KEY,
-        Constants.BASE_URL
-    )
+    private val mainApiClient: ApiClient = ApiClient(Constants.MAIN_SERVER_URL)
+    private val userEventApiClient: ApiClient = ApiClient(Constants.USER_EVENT_SERVER_URL)
 
     private var _initializeParams: InitializeParams? = null
     private val initializeParams: InitializeParams
@@ -44,9 +43,11 @@ object Gentoo {
         get() = Logger.loggerLevel
         set(value) {
             if (value == LogLevel.DEBUG) {
-                apiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+                mainApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+                userEventApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
             } else {
-                apiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
+                mainApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
+                userEventApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
             }
 
             Logger.loggerLevel = value
@@ -125,26 +126,22 @@ object Gentoo {
         Logger.d("Gentoo.fetchFloatingComment(floatingData: $floatingCommentData)")
         val params = this.initializeParams
         val floatingCommentRequest = FloatingCommentRequest(params.partnerId, floatingCommentData)
-        return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
+        return when (val floatingComment = mainApiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> floatingComment.value
         }
     }
 
-    internal suspend fun sendUserEvent(
-        userEventCategory: UserEventCategory,
-        itemId: String? = null
-    ) {
-        val (_, authResponse) = awaitAuth()
+    internal suspend fun sendUserEvent(userEvent: UserEvent) {
+        val (params, authResponse) = awaitAuth()
         val userEventRequest = UserEventRequest(
-            userEventCategory = userEventCategory,
-            userId = authResponse.chatUserId,
-            clientId = initializeParams.partnerId,
-            itemId
+            userEvent = userEvent,
+            chatUserId = authResponse.chatUserId,
+            partnerId = params.partnerId,
         )
 
         return try {
-            when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
+            when (val response = userEventApiClient.send(userEventRequest, UserEventResponse.serializer())) {
                 is GentooResponse.Failure -> {
                     Logger.d("Failed to log user event. ${response.errorResponse}")
                 }
@@ -157,7 +154,7 @@ object Gentoo {
         }
     }
 
-    internal suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {
+    private suspend fun awaitAuth(): Pair<InitializeParams, AuthResponse> {
         val initializeParams = this.initializeParams
         val authResponse = authJob?.await() ?: throw GentooException("Initialize should be called first")
         return initializeParams to authResponse
@@ -173,7 +170,7 @@ object Gentoo {
         }
 
         val authRequest = AuthRequest(udid, userToken)
-        return when (val authResponse = apiClient.send(authRequest, AuthResponse.serializer())) {
+        return when (val authResponse = mainApiClient.send(authRequest, AuthResponse.serializer())) {
             is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.error) // TODO : double check how to handle this case
             is GentooResponse.Success -> {
                 this.authInfo = AuthInfo(udid, userToken, authResponse.value)

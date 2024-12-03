@@ -2,9 +2,6 @@ package com.waddle.gentoo.internal.api.request
 
 import com.waddle.gentoo.internal.api.Endpoints
 import com.waddle.gentoo.internal.api.GetRequest
-import com.waddle.gentoo.internal.api.PostRequest
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 
 internal class AuthRequest(
     private val udid: String,

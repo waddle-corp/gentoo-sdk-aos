@@ -1,13 +1,13 @@
 package com.waddle.gentoo
 
 import com.waddle.gentoo.internal.api.ApiClient
+import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.AuthRequest
+import com.waddle.gentoo.internal.api.request.FloatingCommentData
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
+import com.waddle.gentoo.internal.api.request.FloatingProductRequest
 import com.waddle.gentoo.internal.api.response.AuthResponse
 import com.waddle.gentoo.internal.api.response.FloatingComment
-import com.waddle.gentoo.internal.api.GentooResponse
-import com.waddle.gentoo.internal.api.request.FloatingCommentData
-import com.waddle.gentoo.internal.api.request.FloatingProductRequest
 import com.waddle.gentoo.internal.api.response.FloatingProduct
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeTypeOf

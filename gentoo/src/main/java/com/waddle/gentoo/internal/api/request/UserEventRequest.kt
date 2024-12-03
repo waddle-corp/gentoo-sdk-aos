@@ -6,7 +6,6 @@ import com.waddle.gentoo.internal.api.PostRequest
 import com.waddle.gentoo.internal.util.Constants
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import okhttp3.RequestBody

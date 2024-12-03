@@ -9,16 +9,14 @@ import com.waddle.gentoo.internal.api.request.FloatingProductRequest
 import com.waddle.gentoo.internal.api.response.AuthResponse
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import com.waddle.gentoo.internal.api.response.FloatingProduct
+import com.waddle.gentoo.internal.util.Constants
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 internal class ApiRequestsTest {
-    val apiClient = ApiClient(
-        "G4J2wPnd643wRoQiK52PO9ZAtaD6YNCAhGlfm1Oc",
-        "https://8krjc3tlhc.execute-api.ap-northeast-2.amazonaws.com/chat"
-    )
+    val apiClient = ApiClient(Constants.MAIN_SERVER_URL)
 
     @Test
     fun test_auth() = runBlocking {

@@ -64,7 +64,7 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                 is GentooViewModel.UiState.GifAnimating -> {
                     binding.root.visibility = VISIBLE
                     binding.gentooDescription.visibility = GONE
-                    startGifAnimation()
+                    startGifAnimation(value.imageUrl)
                 }
             }
         }
@@ -99,9 +99,7 @@ class GentooFloatingActionButton @JvmOverloads constructor(
         }
     }
 
-    private fun startGifAnimation(
-        url: String = Constants.FAB_IMAGE_URL
-    ) {
+    private fun startGifAnimation(url: String) {
         binding.gentooImageButton.loadGif(url) {
             onGifAnimationEnded()
         }

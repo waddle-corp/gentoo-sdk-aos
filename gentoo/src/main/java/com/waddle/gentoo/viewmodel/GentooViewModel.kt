@@ -7,6 +7,7 @@ import com.waddle.gentoo.DisplayLocation
 import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.Logger
 import com.waddle.gentoo.internal.api.request.FloatingCommentData
+import com.waddle.gentoo.internal.api.request.UserEvent
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import kotlinx.coroutines.CoroutineScope
@@ -73,13 +74,13 @@ sealed class GentooViewModel(
 
     fun markAsFloatingButtonRendered() {
         CoroutineScope(Dispatchers.IO).launch {
-            Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_RENDERED, itemId = itemId)
+            Gentoo.sendUserEvent(UserEvent.SdkFloatingRendered)
         }
     }
 
     fun markAsFloatingButtonClicked() {
         CoroutineScope(Dispatchers.IO).launch {
-            Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_CLICKED, itemId = itemId)
+            Gentoo.sendUserEvent(UserEvent.SdkFloatingClicked)
         }
     }
 

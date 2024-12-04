@@ -126,7 +126,7 @@ object Gentoo {
         val params = this.initializeParams
         val floatingCommentRequest = FloatingCommentRequest(params.partnerId, floatingCommentData)
         return when (val floatingComment = mainApiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
+            is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.body)
             is GentooResponse.Success -> floatingComment.value
         }
     }
@@ -170,7 +170,7 @@ object Gentoo {
 
         val authRequest = AuthRequest(udid, userToken)
         return when (val authResponse = mainApiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.error) // TODO : double check how to handle this case
+            is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.body)
             is GentooResponse.Success -> {
                 this.authInfo = AuthInfo(udid, userToken, authResponse.value)
                 authResponse.value

@@ -5,9 +5,12 @@ import com.waddle.gentoo.internal.api.Endpoints
 import com.waddle.gentoo.internal.api.PostRequest
 import com.waddle.gentoo.internal.util.Constants
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonArrayBuilder
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
@@ -15,7 +18,7 @@ internal class UserEventRequest(
     private val userEvent: UserEvent,
     private val chatUserId: String,
     private val partnerId: String,
-    private val channelId: String = "Android"
+    private val channelId: String = "mobile"
 ) : PostRequest {
     override val url: String
         get() = Endpoints.USER_EVENT
@@ -27,19 +30,23 @@ internal class UserEventRequest(
             put("chatUserId", chatUserId)
             put("partnerId", partnerId)
             put("channelId", channelId)
-
-            when (userEvent) {
+            val productsAsJson = when (userEvent) {
                 is UserEvent.PurchaseComplete -> {
-                    put("products", Constants.json.encodeToString(userEvent.products))
+                    Constants.json.encodeToJsonElement(userEvent.products)
                 }
 
                 is UserEvent.AddToCart -> {
-                    put("products", Constants.json.encodeToString(userEvent.products))
+                    Constants.json.encodeToJsonElement(userEvent.products)
                 }
 
-                UserEvent.SdkFloatingClicked -> {}
-                UserEvent.SdkFloatingRendered -> {}
+                is UserEvent.SdkFloatingClicked -> {
+                    JsonArray(emptyList())
+                }
+                is UserEvent.SdkFloatingRendered -> {
+                    JsonArray(emptyList())
+                }
             }
+            put("products", productsAsJson)
         }.toString().toRequestBody(APPLICATION_JSON)
 }
 

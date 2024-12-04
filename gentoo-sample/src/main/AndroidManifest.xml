@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Gentoosdkaos">
         <activity
-            android:name=".DetailActivity"
+            android:name=".ProductDetailActivity"
             android:exported="false" />
         <activity
             android:name=".HomeActivity"

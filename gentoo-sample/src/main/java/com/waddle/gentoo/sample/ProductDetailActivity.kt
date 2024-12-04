@@ -11,12 +11,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.waddle.gentoo.Gentoo
-import com.waddle.gentoo.sample.databinding.ActivityDetailBinding
+import com.waddle.gentoo.sample.databinding.ActivityProductDetailBinding
 import com.waddle.gentoo.viewmodel.GentooDetailViewModel
 import com.waddle.gentoo.viewmodel.GentooDetailViewModelFactory
 
-class DetailActivity : AppCompatActivity() {
-    lateinit var binding: ActivityDetailBinding
+class ProductDetailActivity : AppCompatActivity() {
+    lateinit var binding: ActivityProductDetailBinding
     val viewModel: GentooDetailViewModel by viewModels {
         val itemId = intent.getStringExtra(EXTRA_ITEM_ID) ?: ""
         GentooDetailViewModelFactory(itemId)
@@ -25,7 +25,7 @@ class DetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityDetailBinding.inflate(LayoutInflater.from(this))
+        binding = ActivityProductDetailBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

@@ -28,8 +28,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.detailButton.setOnClickListener {
-            val intent = Intent(this, DetailActivity::class.java)
-            intent.putExtra(DetailActivity.EXTRA_ITEM_ID, "3190") // replace hard-coded item id to selected item id
+            val intent = Intent(this, ProductDetailActivity::class.java)
+            intent.putExtra(ProductDetailActivity.EXTRA_ITEM_ID, "3190") // replace hard-coded item id to selected item id
             startActivity(intent)
         }
     }

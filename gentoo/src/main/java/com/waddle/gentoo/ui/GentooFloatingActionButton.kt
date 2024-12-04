@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import com.waddle.gentoo.FloatingActionButtonType
-import com.waddle.gentoo.Gentoo
+import com.waddle.gentoo.DisplayLocation
+import com.waddle.gentoo.Logger
 import com.waddle.gentoo.databinding.ViewGentooFloatingActionButtonBinding
 import com.waddle.gentoo.internal.util.Constants
 import com.waddle.gentoo.internal.util.loadGif
@@ -32,10 +32,18 @@ class GentooFloatingActionButton @JvmOverloads constructor(
     var onViewRendered: () -> Unit = {}
     var onGifAnimationEnded: () -> Unit = {}
     var onTextAnimationEnded: () -> Unit = {}
+    var beenViewRendered: Boolean = false
 
     internal var chatUrl: String = ""
     var uiState: GentooViewModel.UiState = GentooViewModel.UiState.Invisible
         set(value) {
+            Logger.d("uiState updated [$field] >> [$value]")
+
+            if (!beenViewRendered && !field.isVisible && value.isVisible) {
+                beenViewRendered = true
+                onViewRendered()
+            }
+
             field = value
             when (value) {
                 is GentooViewModel.UiState.Collapsed -> {
@@ -56,7 +64,7 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                 is GentooViewModel.UiState.GifAnimating -> {
                     binding.root.visibility = VISIBLE
                     binding.gentooDescription.visibility = GONE
-                    startGifAnimation()
+                    startGifAnimation(value.imageUrl)
                 }
             }
         }
@@ -66,41 +74,32 @@ class GentooFloatingActionButton @JvmOverloads constructor(
         this.addView(binding.root)
 
         this.binding.root.setOnClickListener {
-            val url = this.chatUrl.takeIf { it.isNotEmpty() } ?: Gentoo.defaultChatUrl ?: return@setOnClickListener
+            val url = this.chatUrl.takeIf { it.isNotEmpty() } ?: return@setOnClickListener
             val type = when (val state = uiState) {
-                is GentooViewModel.UiState.GifAnimating -> state.type
-                is GentooViewModel.UiState.Expanding -> state.type
-                is GentooViewModel.UiState.Expanded -> state.type
-                is GentooViewModel.UiState.Collapsed -> state.type
+                is GentooViewModel.UiState.GifAnimating -> state.displayLocation
+                is GentooViewModel.UiState.Expanding -> state.displayLocation
+                is GentooViewModel.UiState.Expanded -> state.displayLocation
+                is GentooViewModel.UiState.Collapsed ->state.displayLocation
                 else -> return@setOnClickListener
             }
 
             onClick?.invoke()
             when (type) {
-                FloatingActionButtonType.DEFAULT -> {
+                DisplayLocation.HOME -> {
                     val intent = Intent(context, GentooChatActivity::class.java)
                     intent.putExtra(GentooChatActivity.INTENT_CHAT_URL, url)
                     context.startActivity(intent)
                 }
-                FloatingActionButtonType.DETAIL -> {
+                DisplayLocation.PRODUCT_DETAIL -> {
                     GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
+
+                DisplayLocation.PRODUCT_LIST -> {} // TODO
             }
         }
-
-        this.binding.root.viewTreeObserver.addOnGlobalLayoutListener(
-            object : OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    onViewRendered()
-                }
-            }
-        )
     }
 
-    private fun startGifAnimation(
-        url: String = Constants.FAB_IMAGE_URL
-    ) {
+    private fun startGifAnimation(url: String) {
         binding.gentooImageButton.loadGif(url) {
             onGifAnimationEnded()
         }

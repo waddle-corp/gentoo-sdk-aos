@@ -1,23 +1,23 @@
 package com.waddle.gentoo.internal.api.request
 
 import com.waddle.gentoo.internal.api.Endpoints
-import com.waddle.gentoo.internal.api.PostRequest
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
+import com.waddle.gentoo.internal.api.GetRequest
 
 internal class AuthRequest(
     private val udid: String,
-    private val authCode: String,
-) : PostRequest {
-    override val requestBody: RequestBody
-        get() = "".toRequestBody()
+    private val userToken: String,
+) : GetRequest {
     override val url: String
-        get() = Endpoints.AUTH
+        get() = Endpoints.USER
     override val headers: Map<String, String>
         get() = mapOf(
-            "udid" to udid,
-            "authCode" to authCode,
             "Content-Type" to "application/json"
         )
-    override val isApiKeyRequired: Boolean = true
+    override val params: Map<String, String>
+        get() = mapOf(
+            "udid" to udid,
+            "userToken" to userToken,
+        )
+
+    override val isApiKeyRequired: Boolean = false
 }

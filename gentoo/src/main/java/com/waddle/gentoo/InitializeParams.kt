@@ -1,7 +1,7 @@
 package com.waddle.gentoo
 
 data class InitializeParams(
-    val clientId: String,
-    val authCode: String,
+    val partnerId: String,
+    val userToken: String,
     val udid: String
 )

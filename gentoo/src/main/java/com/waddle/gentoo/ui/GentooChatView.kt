@@ -2,7 +2,6 @@ package com.waddle.gentoo.ui
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView

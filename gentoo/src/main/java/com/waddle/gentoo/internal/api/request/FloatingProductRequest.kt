@@ -22,7 +22,7 @@ internal class FloatingProductRequest(
             put("channelId", channelId)
         }.toString().toRequestBody(APPLICATION_JSON)
     override val url: String
-        get() = Endpoints.RECOMMEND
+        get() = Endpoints.FLOATING
     override val headers: Map<String, String>
         get() = emptyMap()
 }

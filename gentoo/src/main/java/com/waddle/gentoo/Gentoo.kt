@@ -3,14 +3,13 @@ package com.waddle.gentoo
 import com.waddle.gentoo.internal.api.ApiClient
 import com.waddle.gentoo.internal.api.GentooResponse
 import com.waddle.gentoo.internal.api.request.AuthRequest
+import com.waddle.gentoo.internal.api.request.FloatingCommentData
 import com.waddle.gentoo.internal.api.request.FloatingCommentRequest
-import com.waddle.gentoo.internal.api.request.FloatingProductRequest
-import com.waddle.gentoo.internal.api.request.UserEventCategory
+import com.waddle.gentoo.internal.api.request.UserEvent
 import com.waddle.gentoo.internal.api.request.UserEventRequest
 import com.waddle.gentoo.internal.api.response.AuthInfo
 import com.waddle.gentoo.internal.api.response.AuthResponse
 import com.waddle.gentoo.internal.api.response.FloatingComment
-import com.waddle.gentoo.internal.api.response.FloatingProduct
 import com.waddle.gentoo.internal.api.response.UserEventResponse
 import com.waddle.gentoo.internal.exception.GentooException
 import com.waddle.gentoo.internal.util.Constants
@@ -25,10 +24,8 @@ import kotlinx.coroutines.launch
 import okhttp3.logging.HttpLoggingInterceptor
 
 object Gentoo {
-    private val apiClient: ApiClient = ApiClient(
-        Constants.API_KEY,
-        Constants.BASE_URL
-    )
+    private val mainApiClient: ApiClient = ApiClient(Constants.MAIN_SERVER_URL)
+    private val userEventApiClient: ApiClient = ApiClient(Constants.USER_EVENT_SERVER_URL)
 
     private var _initializeParams: InitializeParams? = null
     private val initializeParams: InitializeParams
@@ -41,15 +38,15 @@ object Gentoo {
      */
     private var authJob: Deferred<AuthResponse>? = null
 
-    var defaultChatUrl: String? = null
-
     var logLevel: LogLevel
         get() = Logger.loggerLevel
         set(value) {
             if (value == LogLevel.DEBUG) {
-                apiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+                mainApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+                userEventApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
             } else {
-                apiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
+                mainApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
+                userEventApiClient.httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE)
             }
 
             Logger.loggerLevel = value
@@ -73,9 +70,7 @@ object Gentoo {
         this._initializeParams = params
         authJob = CoroutineScope(Dispatchers.IO).async {
             try {
-                authenticate(params.udid, params.authCode).also {
-                    defaultChatUrl = getDefaultChatUrl(it.body.randomId, params)
-                }
+                authenticate(params.udid, params.userToken)
             } catch (e: Exception) {
                 Logger.e("Gentoo.initialize() >> failed to authenticate(e: $e) ")
                 throw e
@@ -109,87 +104,63 @@ object Gentoo {
         view.onViewRendered = { viewModel.markAsFloatingButtonRendered() }
         view.onGifAnimationEnded = { viewModel.onGifAnimationEnded() }
         view.onTextAnimationEnded = { viewModel.onTextAnimationEnded() }
+        viewModel.showFloatingButtonComment()
     }
 
-    @Throws(GentooException::class)
-    internal suspend fun getDetailChatUrl(
-        itemId: String,
-        type: ChatType,
-        comment: String
-    ): String {
-        Logger.d("Gentoo.getDetailChatUrl(itemId: $itemId, type: $type, comment: $comment)")
-        val (initializeParams, authResponse) = awaitAuth()
-        val userId = authResponse.body.randomId
-        val hostUrl = if (initializeParams.clientId == "dlst" && BuildConfig.DEBUG.not()) {
-            "https://demo.gentooai.com"
-        } else {
-            "https://dev-demo.gentooai.com"
-        }
-        return "$hostUrl/${initializeParams.clientId.urlEncoded}/sdk/${userId.urlEncoded}?i=${itemId.urlEncoded}&t=${type.asString.urlEncoded}&ch=true&fc=${comment.urlEncoded}".also {
-            Logger.d("Gentoo.getDetailChatUrl() >> built chat url: $it")
+    suspend fun sendUserEvent(userEvent: UserEvent) {
+        val (params, authResponse) = awaitAuth()
+        val userEventRequest = UserEventRequest(
+            userEvent = userEvent,
+            chatUserId = authResponse.chatUserId,
+            partnerId = params.partnerId,
+        )
+
+        return try {
+            when (val response = userEventApiClient.send(userEventRequest, UserEventResponse.serializer())) {
+                is GentooResponse.Failure -> {
+                    Logger.d("Failed to log user event. ${response.errorResponse}")
+                }
+                is GentooResponse.Success -> {
+                    Logger.d("Succeeded to log user event.")
+                }
+            }
+        } catch (e: GentooException) {
+            Logger.e("Failed to log user event by error. e: $e")
         }
     }
 
-    internal fun getDefaultChatUrl(
-        userId: String,
-        params: InitializeParams
-    ): String {
+    fun sendUserEvent(userEvent: UserEvent, callback: () -> Unit = {}) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                sendUserEvent(userEvent)
+            } catch (_: Exception) {
+            } finally {
+                callback()
+            }
+        }
+    }
+
+    internal suspend fun getDefaultChatUrl(): String {
         Logger.d("Gentoo.getDefaultChatUrl()")
-        val hostUrl = if (params.clientId == "dlst" && BuildConfig.DEBUG.not()) {
+        val (initializeParams, authResponse) = awaitAuth()
+        val hostUrl = if (BuildConfig.DEBUG.not()) {
             "https://demo.gentooai.com"
         } else {
             "https://dev-demo.gentooai.com"
         }
-        return "$hostUrl/${params.clientId.urlEncoded}/${userId.urlEncoded}?ch=true".also {
+        return "$hostUrl/chatroute/gentoo?ptid=${initializeParams.partnerId.urlEncoded}&cuid=${authResponse.chatUserId.urlEncoded}&ch=true".also {
             Logger.d("Gentoo.getDefaultChatUrl() >> built chat url: $it")
         }
     }
 
     @Throws(GentooException::class)
-    internal suspend fun fetchFloatingComment(chatType: ChatType, itemId: String): FloatingComment {
-        Logger.d("Gentoo.fetchFloatingComment(chatType: $chatType, itemId: $itemId)")
-        val (params, authResponse) = awaitAuth()
-        val floatingCommentRequest = FloatingCommentRequest(params.clientId, itemId, authResponse.body.randomId, chatType)
-        return when (val floatingComment = apiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.error) // TODO : double check how to handle this case
+    internal suspend fun fetchFloatingComment(floatingCommentData: FloatingCommentData): FloatingComment {
+        Logger.d("Gentoo.fetchFloatingComment(floatingData: $floatingCommentData)")
+        val params = this.initializeParams
+        val floatingCommentRequest = FloatingCommentRequest(params.partnerId, floatingCommentData)
+        return when (val floatingComment = mainApiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
+            is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.body)
             is GentooResponse.Success -> floatingComment.value
-        }
-    }
-
-    @Throws(GentooException::class)
-    internal suspend fun fetchFloatingProduct(itemId: String, target: String): FloatingProduct {
-        Logger.d("Gentoo.fetchFloatingProduct(itemId: $itemId, target: $target)")
-        val (_, authResponse) = awaitAuth()
-        val floatingProductRequest = FloatingProductRequest(itemId, authResponse.body.randomId, target)
-        return when (val floatingProduct = apiClient.send(floatingProductRequest, FloatingProduct.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(floatingProduct.errorResponse.error) // TODO : double check how to handle this case
-            is GentooResponse.Success -> floatingProduct.value
-        }
-    }
-
-    internal suspend fun sendUserEvent(
-        userEventCategory: UserEventCategory,
-        itemId: String? = null
-    ) {
-        val (_, authResponse) = awaitAuth()
-        val userEventRequest = UserEventRequest(
-            userEventCategory = userEventCategory,
-            userId = authResponse.body.randomId,
-            clientId = initializeParams.clientId,
-            itemId
-        )
-
-        return try {
-            when (val response = apiClient.send(userEventRequest, UserEventResponse.serializer())) {
-                is GentooResponse.Failure -> {
-                    Logger.d("Failed to log user event. ${response.errorResponse}")
-                }
-                is GentooResponse.Success -> {
-                    Logger.d("Succeeded to log user event. ${response.value.message}")
-                }
-            }
-        } catch (e: GentooException) {
-            Logger.e("Failed to log user event by error. e: $e")
         }
     }
 
@@ -200,19 +171,19 @@ object Gentoo {
     }
 
     @Throws(GentooException::class)
-    private suspend fun authenticate(udid: String, authCode: String): AuthResponse {
+    private suspend fun authenticate(udid: String, userToken: String): AuthResponse {
         Logger.d("Gentoo.authenticate(udid: $udid)")
         // if there is same auth info with given userDeviceId and authCode, early return cached AuthResponse
         this.authInfo?.let {
             Logger.d("Gentoo.authenticate() >> already authenticated with udid($udid)")
-            if (it.udid == udid && it.authCode == authCode) return it.authResponse
+            if (it.udid == udid && it.userToken == userToken) return it.authResponse
         }
 
-        val authRequest = AuthRequest(udid, authCode)
-        return when (val authResponse = apiClient.send(authRequest, AuthResponse.serializer())) {
-            is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.error) // TODO : double check how to handle this case
+        val authRequest = AuthRequest(udid, userToken)
+        return when (val authResponse = mainApiClient.send(authRequest, AuthResponse.serializer())) {
+            is GentooResponse.Failure -> throw GentooException(authResponse.errorResponse.body)
             is GentooResponse.Success -> {
-                this.authInfo = AuthInfo(udid, authCode, authResponse.value)
+                this.authInfo = AuthInfo(udid, userToken, authResponse.value)
                 authResponse.value
             }
         }

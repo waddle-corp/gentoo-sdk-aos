@@ -7,6 +7,7 @@ import com.waddle.gentoo.DisplayLocation
 import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.Logger
 import com.waddle.gentoo.internal.api.request.FloatingCommentData
+import com.waddle.gentoo.internal.api.request.UserEvent
 import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import kotlinx.coroutines.CoroutineScope
@@ -45,8 +46,8 @@ sealed class GentooViewModel(
     fun showFloatingButtonComment() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                changeUiState(UiState.GifAnimating(displayLocation))
                 val floatingComment = Gentoo.fetchFloatingComment(floatingCommentData)
+                changeUiState(UiState.GifAnimating(displayLocation, floatingComment.imageUrl))
                 Logger.d("GentooViewModel($displayLocation).showFloatingButtonComment() >> fetchFloatingComment result: $floatingComment")
                 val chatUrl = getChatUrl(floatingComment)
                 _chatUrl.emit(chatUrl)
@@ -73,13 +74,13 @@ sealed class GentooViewModel(
 
     fun markAsFloatingButtonRendered() {
         CoroutineScope(Dispatchers.IO).launch {
-            Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_RENDERED, itemId = itemId)
+            Gentoo.sendUserEvent(UserEvent.SdkFloatingRendered)
         }
     }
 
     fun markAsFloatingButtonClicked() {
         CoroutineScope(Dispatchers.IO).launch {
-            Gentoo.sendUserEvent(UserEventCategory.SDK_FLOATING_CLICKED, itemId = itemId)
+            Gentoo.sendUserEvent(UserEvent.SdkFloatingClicked)
         }
     }
 
@@ -96,11 +97,26 @@ sealed class GentooViewModel(
     }
 
     sealed class UiState {
-        data object Invisible : UiState()
-        data class GifAnimating(val displayLocation: DisplayLocation) : UiState()
-        data class Expanding(val displayLocation: DisplayLocation, val comment: String) : UiState()
-        data class Expanded(val displayLocation: DisplayLocation, val comment: String) : UiState()
-        data class Collapsed(val displayLocation: DisplayLocation) : UiState()
+        internal abstract val isVisible: Boolean
+        data object Invisible : UiState() {
+            override val isVisible: Boolean = false
+        }
+
+        data class GifAnimating(val displayLocation: DisplayLocation, val imageUrl: String) : UiState() {
+            override val isVisible: Boolean = true
+        }
+
+        data class Expanding(val displayLocation: DisplayLocation, val comment: String) : UiState() {
+            override val isVisible: Boolean = true
+        }
+
+        data class Expanded(val displayLocation: DisplayLocation, val comment: String) : UiState() {
+            override val isVisible: Boolean = true
+        }
+
+        data class Collapsed(val displayLocation: DisplayLocation) : UiState() {
+            override val isVisible: Boolean = false
+        }
     }
 
     companion object {

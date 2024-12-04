@@ -1,26 +1,22 @@
 package com.waddle.gentoo.internal.util
 
 import com.waddle.gentoo.BuildConfig
+import kotlinx.serialization.json.Json
 
 internal object Constants {
-    val API_KEY: String
+    val MAIN_SERVER_URL: String
         get() = if (BuildConfig.DEBUG) {
-            "G4J2wPnd643wRoQiK52PO9ZAtaD6YNCAhGlfm1Oc"
+            "https://dev-api.gentooai.com/chat"
         } else {
-            "EYOmgqkSmm55kxojN6ck7a4SKlvKltpd9X5r898k"
+            "https://api.gentooai.com/chat"
         }
 
-    val BASE_URL: String
+    val USER_EVENT_SERVER_URL: String
         get() = if (BuildConfig.DEBUG) {
-            "https://hg5eey52l4.execute-api.ap-northeast-2.amazonaws.com/dev"
+            "https://7u6bc0lsf4.execute-api.ap-northeast-2.amazonaws.com"
         } else {
-            "https://byg7k8r4gi.execute-api.ap-northeast-2.amazonaws.com/prod"
+            "https://9rqj026gwg.execute-api.ap-northeast-2.amazonaws.com"
         }
 
-    val FAB_IMAGE_URL: String
-        get() = if (BuildConfig.DEBUG) {
-            "https://d32xcphivq9687.cloudfront.net/public/img/units/gentoo-anime-web-noloop.gif"
-        } else {
-            "https://d3qrvyizob9ouf.cloudfront.net/public/img/units/gentoo-anime-web-noloop.gif"
-        }
+    val json = Json { ignoreUnknownKeys = true }
 }

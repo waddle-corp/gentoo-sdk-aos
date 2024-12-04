@@ -1,16 +1,12 @@
 package com.waddle.gentoo.internal.api
 
 import androidx.annotation.WorkerThread
-import com.waddle.gentoo.BuildConfig
-import com.waddle.gentoo.LogLevel
 import com.waddle.gentoo.Logger
 import com.waddle.gentoo.internal.api.response.ErrorResponse
 import com.waddle.gentoo.internal.exception.GentooException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonObject
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -22,7 +18,6 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 internal class ApiClient(
-    private val apiKey: String,
     private val baseUrl: String
 ) {
     val httpLoggingInterceptor: HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
@@ -45,11 +40,7 @@ internal class ApiClient(
 
             try {
                 if (!response.isSuccessful) {
-                    val errorJsonObject = json.parseToJsonElement(body).apply {
-                        this.jsonObject.plus("statusCode" to statusCode)
-                    }
-                    val errorResponse = json.decodeFromJsonElement<ErrorResponse>(errorJsonObject)
-                    return GentooResponse.Failure(errorResponse)
+                    return GentooResponse.Failure(ErrorResponse(statusCode, body))
                 }
 
                 val result = json.decodeFromString(serializer, body)
@@ -65,10 +56,6 @@ internal class ApiClient(
 
     private fun ApiRequest.toRequest(): Request {
         val request = Request.Builder()
-
-        if (this.isApiKeyRequired) {
-            request.addHeader("x-api-key", apiKey)
-        }
 
         this.headers.forEach {
             request.addHeader(it.key, it.value)

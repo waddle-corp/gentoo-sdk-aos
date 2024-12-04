@@ -107,6 +107,39 @@ object Gentoo {
         viewModel.showFloatingButtonComment()
     }
 
+    suspend fun sendUserEvent(userEvent: UserEvent) {
+        val (params, authResponse) = awaitAuth()
+        val userEventRequest = UserEventRequest(
+            userEvent = userEvent,
+            chatUserId = authResponse.chatUserId,
+            partnerId = params.partnerId,
+        )
+
+        return try {
+            when (val response = userEventApiClient.send(userEventRequest, UserEventResponse.serializer())) {
+                is GentooResponse.Failure -> {
+                    Logger.d("Failed to log user event. ${response.errorResponse}")
+                }
+                is GentooResponse.Success -> {
+                    Logger.d("Succeeded to log user event.")
+                }
+            }
+        } catch (e: GentooException) {
+            Logger.e("Failed to log user event by error. e: $e")
+        }
+    }
+
+    fun sendUserEvent(userEvent: UserEvent, callback: () -> Unit = {}) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                sendUserEvent(userEvent)
+            } catch (_: Exception) {
+            } finally {
+                callback()
+            }
+        }
+    }
+
     internal suspend fun getDefaultChatUrl(): String {
         Logger.d("Gentoo.getDefaultChatUrl()")
         val (initializeParams, authResponse) = awaitAuth()
@@ -128,28 +161,6 @@ object Gentoo {
         return when (val floatingComment = mainApiClient.send(floatingCommentRequest, FloatingComment.serializer())) {
             is GentooResponse.Failure -> throw GentooException(floatingComment.errorResponse.body)
             is GentooResponse.Success -> floatingComment.value
-        }
-    }
-
-    suspend fun sendUserEvent(userEvent: UserEvent) {
-        val (params, authResponse) = awaitAuth()
-        val userEventRequest = UserEventRequest(
-            userEvent = userEvent,
-            chatUserId = authResponse.chatUserId,
-            partnerId = params.partnerId,
-        )
-
-        return try {
-            when (val response = userEventApiClient.send(userEventRequest, UserEventResponse.serializer())) {
-                is GentooResponse.Failure -> {
-                    Logger.d("Failed to log user event. ${response.errorResponse}")
-                }
-                is GentooResponse.Success -> {
-                    Logger.d("Succeeded to log user event.")
-                }
-            }
-        } catch (e: GentooException) {
-            Logger.e("Failed to log user event by error. e: $e")
         }
     }
 

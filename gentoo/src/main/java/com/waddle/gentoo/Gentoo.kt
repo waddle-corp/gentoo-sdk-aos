@@ -131,7 +131,7 @@ object Gentoo {
         }
     }
 
-    internal suspend fun sendUserEvent(userEvent: UserEvent) {
+    suspend fun sendUserEvent(userEvent: UserEvent) {
         val (params, authResponse) = awaitAuth()
         val userEventRequest = UserEventRequest(
             userEvent = userEvent,
@@ -145,7 +145,7 @@ object Gentoo {
                     Logger.d("Failed to log user event. ${response.errorResponse}")
                 }
                 is GentooResponse.Success -> {
-                    Logger.d("Succeeded to log user event. ${response.value.message}")
+                    Logger.d("Succeeded to log user event.")
                 }
             }
         } catch (e: GentooException) {

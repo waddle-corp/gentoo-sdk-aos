@@ -21,16 +21,24 @@
         android:id="@+id/homeButton"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Home floating action button sample"
+        android:text="Home"
         android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@id/topBar" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/productListButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Product List"
+        android:layout_margin="16dp"
+        app:layout_constraintTop_toBottomOf="@id/homeButton" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/detailButton"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Detail floating action button sample"
+        android:text="Product Detail"
         android:layout_margin="16dp"
-        app:layout_constraintTop_toBottomOf="@id/homeButton" />
+        app:layout_constraintTop_toBottomOf="@id/productListButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

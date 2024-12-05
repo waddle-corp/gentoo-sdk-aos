@@ -86,18 +86,13 @@ class GentooFloatingActionButton @JvmOverloads constructor(
             onClick?.invoke()
             when (type) {
                 DisplayLocation.HOME -> {
-                    val intent = Intent(context, GentooChatActivity::class.java)
-                    intent.putExtra(GentooChatActivity.INTENT_CHAT_URL, url)
-                    context.startActivity(intent)
+                    GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
                 DisplayLocation.PRODUCT_DETAIL -> {
                     GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
-
                 DisplayLocation.PRODUCT_LIST -> {
-                    val intent = Intent(context, GentooChatActivity::class.java)
-                    intent.putExtra(GentooChatActivity.INTENT_CHAT_URL, url)
-                    context.startActivity(intent)
+                    GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
             }
         }

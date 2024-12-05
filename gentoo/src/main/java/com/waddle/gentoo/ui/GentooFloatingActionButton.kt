@@ -94,7 +94,11 @@ class GentooFloatingActionButton @JvmOverloads constructor(
                     GentooBottomSheetDialog(context, url) { onDismiss?.invoke() }.show()
                 }
 
-                DisplayLocation.PRODUCT_LIST -> {} // TODO
+                DisplayLocation.PRODUCT_LIST -> {
+                    val intent = Intent(context, GentooChatActivity::class.java)
+                    intent.putExtra(GentooChatActivity.INTENT_CHAT_URL, url)
+                    context.startActivity(intent)
+                }
             }
         }
     }

@@ -71,7 +71,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.waddle-corp"
                 artifactId = "gentoo"
-                version = "1.0.0-beta"
+                version = "1.1.0"
 
                 artifact(layout.buildDirectory.file("outputs/aar/gentoo-release.aar")) {
                     classifier = "release"

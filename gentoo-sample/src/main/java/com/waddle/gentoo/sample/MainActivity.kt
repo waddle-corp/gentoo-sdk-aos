@@ -31,6 +31,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        binding.productListButton.setOnClickListener {
+            val intent = Intent(this, ProductListActivity::class.java)
+            startActivity(intent)
+        }
+
         binding.detailButton.setOnClickListener {
             val intent = Intent(this, ProductDetailActivity::class.java)
             intent.putExtra(ProductDetailActivity.EXTRA_ITEM_ID, "3190") // replace hard-coded item id to selected item id

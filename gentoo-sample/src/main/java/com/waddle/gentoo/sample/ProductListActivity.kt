@@ -11,21 +11,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.waddle.gentoo.Gentoo
-import com.waddle.gentoo.sample.databinding.ActivityDetailBinding
-import com.waddle.gentoo.viewmodel.GentooDetailViewModel
-import com.waddle.gentoo.viewmodel.GentooDetailViewModelFactory
+import com.waddle.gentoo.sample.databinding.ActivityProductListBinding
+import com.waddle.gentoo.viewmodel.GentooProductListViewModel
 
-class DetailActivity : AppCompatActivity() {
-    lateinit var binding: ActivityDetailBinding
-    val viewModel: GentooDetailViewModel by viewModels {
-        val itemId = intent.getStringExtra(EXTRA_ITEM_ID) ?: ""
-        GentooDetailViewModelFactory(itemId)
-    }
+class ProductListActivity : AppCompatActivity() {
+    lateinit var binding: ActivityProductListBinding
+    val viewModel: GentooProductListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityDetailBinding.inflate(LayoutInflater.from(this))
+        binding = ActivityProductListBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -37,7 +33,7 @@ class DetailActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.topBar.setNavigationIconTint(ContextCompat.getColor(this, R.color.white))
 
-        Gentoo.bind(binding.gentooDetailFloatingActionButton, viewModel, lifecycleScope)
+        Gentoo.bind(binding.gentooFloatingActionButton, viewModel, lifecycleScope)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -48,9 +44,5 @@ class DetailActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    companion object {
-        const val EXTRA_ITEM_ID = "EXTRA_ITEM_ID"
     }
 }

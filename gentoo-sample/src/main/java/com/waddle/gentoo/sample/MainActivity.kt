@@ -2,11 +2,15 @@ package com.waddle.gentoo.sample
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.waddle.gentoo.Gentoo
+import com.waddle.gentoo.internal.api.request.Product
+import com.waddle.gentoo.internal.api.request.UserEvent
 import com.waddle.gentoo.sample.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -28,9 +32,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.detailButton.setOnClickListener {
-            val intent = Intent(this, DetailActivity::class.java)
-            intent.putExtra(DetailActivity.EXTRA_ITEM_ID, "3190") // replace hard-coded item id to selected item id
+            val intent = Intent(this, ProductDetailActivity::class.java)
+            intent.putExtra(ProductDetailActivity.EXTRA_ITEM_ID, "3190") // replace hard-coded item id to selected item id
             startActivity(intent)
+        }
+
+        binding.purchaseCompleteButton.setOnClickListener {
+            Gentoo.sendUserEvent(UserEvent.PurchaseComplete(listOf(Product("purchase-completed-item-id", 1)))) {
+                Log.d("HomeActivity", "PurchaseComplete user event sent")
+            }
+        }
+
+        binding.addToCartButton.setOnClickListener {
+            Gentoo.sendUserEvent(UserEvent.AddToCart(listOf(Product("cart-added-item-id", 1)))) {
+                Log.d("HomeActivity", "AddToCart user event sent")
+            }
         }
     }
 }

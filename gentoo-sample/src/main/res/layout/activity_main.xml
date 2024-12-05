@@ -21,16 +21,48 @@
         android:id="@+id/homeButton"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Home floating action button sample"
+        android:text="Home"
         android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@id/topBar" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/productListButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Product List"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/homeButton" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/detailButton"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Detail floating action button sample"
-        android:layout_margin="16dp"
-        app:layout_constraintTop_toBottomOf="@id/homeButton" />
+        android:text="Product Detail"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/productListButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/purchaseCompleteButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Trigger `PurchaseComplete` user event"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/detailButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/addToCartButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Trigger `AddToCart` user event"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/purchaseCompleteButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

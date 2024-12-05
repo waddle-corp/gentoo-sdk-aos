@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetailActivity">
+    tools:context=".HomeActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topBar"
@@ -13,18 +13,17 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        app:title="Detail Screen"
+        app:title="Home Screen"
         app:titleTextColor="@color/white000"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <com.waddle.gentoo.ui.GentooFloatingActionButton
-        android:id="@+id/gentooDetailFloatingActionButton"
+        android:id="@+id/gentooFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

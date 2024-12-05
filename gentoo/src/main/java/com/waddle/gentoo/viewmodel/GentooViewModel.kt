@@ -8,7 +8,6 @@ import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.Logger
 import com.waddle.gentoo.internal.api.request.FloatingCommentData
 import com.waddle.gentoo.internal.api.request.UserEvent
-import com.waddle.gentoo.internal.api.request.UserEventCategory
 import com.waddle.gentoo.internal.api.response.FloatingComment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -149,7 +148,7 @@ class GentooProductListViewModel : GentooViewModel(
     }
 }
 
-class GentooDetailViewModel(
+class GentooProductDetailViewModel(
     override val itemId: String?
 ) : GentooViewModel(
     DisplayLocation.PRODUCT_DETAIL,

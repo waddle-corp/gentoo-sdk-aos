@@ -12,14 +12,14 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.waddle.gentoo.Gentoo
 import com.waddle.gentoo.sample.databinding.ActivityProductDetailBinding
-import com.waddle.gentoo.viewmodel.GentooDetailViewModel
-import com.waddle.gentoo.viewmodel.GentooDetailViewModelFactory
+import com.waddle.gentoo.viewmodel.GentooProductDetailViewModel
+import com.waddle.gentoo.viewmodel.GentooProductDetailViewModelFactory
 
 class ProductDetailActivity : AppCompatActivity() {
     lateinit var binding: ActivityProductDetailBinding
-    val viewModel: GentooDetailViewModel by viewModels {
+    val viewModel: GentooProductDetailViewModel by viewModels {
         val itemId = intent.getStringExtra(EXTRA_ITEM_ID) ?: ""
-        GentooDetailViewModelFactory(itemId)
+        GentooProductDetailViewModelFactory(itemId)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeActivity">
+    tools:context=".ProductListActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topBar"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        app:title="Home Screen"
+        app:title="Product List Screen"
         app:titleTextColor="@color/white000"
         app:layout_constraintTop_toTopOf="parent"/>
 
